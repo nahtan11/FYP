@@ -3,6 +3,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -47,10 +48,13 @@ public class Main extends Application {
 
         // create a label
         Label popupLabel = new Label("You Win!");
+        popupLabel.setMinWidth(200);
+        popupLabel.setMinHeight(200);
+        popupLabel.setAlignment(Pos.BASELINE_CENTER);
+        popupLabel.setStyle(" -fx-background-color: white;");
 
         // create a popup
         Popup popup = new Popup();
-        popupLabel.setStyle(" -fx-background-color: white;");
         popup.getContent().add(popupLabel);
 
         ArrayList<ArrayList<Integer>> Positions = new ArrayList<ArrayList<Integer>>();
@@ -181,21 +185,34 @@ public class Main extends Application {
         s9.setMinHeight(200);
         sqs.add(s9, Positions.get(8).get(0), Positions.get(8).get(1));
 
-        Play.setOnAction(new EventHandler<ActionEvent>() {
+        /*Play.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                while(!(checkWin(butts,PositionsDup))){
+                if(!(checkWin(butts,PositionsDup))){
 
-                    int i = (int) Math.floor(Math.random() * (8 - 1 + 1) + 1);
+                    int i = (int) Math.floor(Math.random() * (7 - 0 + 1) + 0);
+                    System.out.println(i);
 
-                    Event.fireEvent(butts.get(i-1), new MouseEvent(MouseEvent.MOUSE_CLICKED, 0,
-                            0, 0, 0, MouseButton.PRIMARY, 1, true, true, true, true,
-                            true, true, true, true, true, true, null));
+                    butts.get(i).fire();
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+
+                    Play.fire();
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+
                 }
 
 
 
             }
-        });
+        });*/
+
 
 
 
@@ -370,7 +387,7 @@ public class Main extends Application {
         s8.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s8,s9) == true) {
+                if(proximityCheck(s8, s9)) {
                     int tmpR = GridPane.getRowIndex(s8);
                     int tmpC = GridPane.getColumnIndex(s8);
                     sqs.getChildren().remove(s8);
@@ -396,7 +413,6 @@ public class Main extends Application {
         primaryStage.setTitle("8-Puzzle"); // Set the stage title
         primaryStage.setScene(scene); // Place the scene in the stage
         primaryStage.show(); // Display the stage
-
 
 
 
@@ -467,12 +483,12 @@ public class Main extends Application {
             int posC = PositionsDup.get(i).get(0);
             int posR = PositionsDup.get(i).get(1);
 
-            System.out.print(buttonC);
-            System.out.print(buttonR);
-            System.out.print("  ");
+            //System.out.print(buttonC);
+            //System.out.print(buttonR);
+            //System.out.print("  ");
 
-            System.out.print(posC);
-            System.out.println(posR);
+            //System.out.print(posC);
+            //System.out.println(posR);
             if (buttonC == posC && buttonR == posR) {
                 temp = true;
                 i++;
