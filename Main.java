@@ -1,9 +1,13 @@
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,12 +17,15 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Main
@@ -28,11 +35,25 @@ public class Main extends Application {
     private int counter = 0;
     private Label label = new Label("Moves: 0");
 
+    private Node getNodeFromGridPane(GridPane pane, int col, int row) {
+        for (Node node : pane.getChildren()) {
+            if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+
 
     @Override // Override the start method in the Application class
     public void start(Stage primaryStage)
     {
         BorderPane back = new BorderPane();
+
+        HBox hBox = new HBox();
+        back.setTop(hBox);
+
         GridPane sqs = new GridPane();
         back.setCenter(sqs);
         back.setRight(label);
@@ -40,11 +61,19 @@ public class Main extends Application {
         sqs.setVgap(5);
         sqs.setPadding(new Insets(5));
 
-        Button Play = new Button();
-        Play.setText("PLAY");
-        Play.setMinWidth(20);
-        Play.setMinHeight(20);
-        back.setTop(Play);
+        Button Random = new Button();
+        Random.setText("Random");
+        Random.setMinWidth(20);
+        Random.setMinHeight(20);
+        //back.setTop(Random);
+        hBox.getChildren().add(Random);
+
+        Button AStar = new Button();
+        AStar.setText("AStar");
+        AStar.setMinWidth(20);
+        AStar.setMinHeight(20);
+        //back.setTop(AStar);
+        hBox.getChildren().add(AStar);
 
         // create a label
         Label popupLabel = new Label("You Win!");
@@ -112,9 +141,12 @@ public class Main extends Application {
         sq9.add(2);
         Positions.add(sq9);
 
-        Collections.shuffle(Positions);
+        //Collections.shuffle(Positions);
 
         ArrayList<Button> butts = new ArrayList<Button>();
+
+
+
 
         Button s1 = new Button();
         s1.setText("1");
@@ -185,36 +217,94 @@ public class Main extends Application {
         s9.setMinHeight(200);
         sqs.add(s9, Positions.get(8).get(0), Positions.get(8).get(1));
 
-        /*Play.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                if(!(checkWin(butts,PositionsDup))){
-
-                    int i = (int) Math.floor(Math.random() * (7 - 0 + 1) + 0);
-                    System.out.println(i);
-
-                    butts.get(i).fire();
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    Play.fire();
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-
+        Task<Void> random = new Task<Void>() {// Implement required call() method
+            @Override
+            protected Void call() throws Exception {
+                // Add delay code from initial attempt
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
                 }
 
+                while(!(checkWin(butts,PositionsDup))){
 
+                    ArrayList<Button> buttsNear = getSurroundingTiles(sqs,s9);
+
+                    int i = (int) Math.floor(Math.random() * (buttsNear.size()));
+                    System.out.println();
+                    //System.out.println("Blank " + blank);
+                    //System.out.println("index " +i );
+
+                    for(int j =0;j<buttsNear.size();j++){
+                        System.out.print(sqs.getRowIndex(buttsNear.get(j)));
+                        System.out.println(sqs.getColumnIndex(buttsNear.get(j)));
+                    }
+
+                    Platform.runLater(()->buttsNear.get(i).fire());
+                    //Thread.sleep(500);
+                    if(!(checkWin(butts,PositionsDup))){
+                        Thread.sleep(50);
+                    }
+                };
+                return null;
+            }
+        };
+
+        Task<Void> aStar = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                }
+
+                int level = 0;
+                int tOOP1 = getTilesOutOfPlace(PositionsDup,butts);
+                int value1 = level + tOOP1;
+
+                ArrayList<Integer> open = new ArrayList<Integer>();
+                ArrayList<Integer> closed = new ArrayList<Integer>();
+                System.out.print(value1);
+
+                /*while(!(checkWin(butts,PositionsDup))){
+
+                    int tOOP = getTilesOutOfPlace(PositionsDup,butts);
+                    ArrayList<Button> buttsNear = getSurroundingTiles(sqs,s9);
+
+                    int value = level + tOOP;
+
+
+                }*/
+
+
+
+
+
+
+
+                // We're not interested in the return value, so return null
+                return null;
+            }
+        };
+
+
+        Random.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                new Thread(random).start();
+            }
+        });
+        AStar.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                new Thread(aStar).start();
+                int buttonC = GridPane.getColumnIndex(butts.get(0));
+                int buttonR = GridPane.getRowIndex(butts.get(0));
+                System.out.print(PositionsDup.get(0).get(0));
+                System.out.println(PositionsDup.get(0).get(1));
+                System.out.print(buttonR);
+                System.out.println(buttonC);
 
             }
-        });*/
-
-
-
+        });
 
         s1.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
@@ -418,6 +508,26 @@ public class Main extends Application {
 
     }
 
+    public int getTilesOutOfPlace(ArrayList<ArrayList<Integer>> PositionsDup, ArrayList<Button> butts) {
+
+        int tOOP = 0;
+
+        for(int i = 0;i<PositionsDup.size();i++)
+        {
+            int buttonC = GridPane.getColumnIndex(butts.get(i));
+            int buttonR = GridPane.getRowIndex(butts.get(i));
+
+            int posC = PositionsDup.get(i).get(0);
+            int posR = PositionsDup.get(i).get(1);
+
+            if (!(buttonC == posC && buttonR == posR)){
+                tOOP++;
+            }
+
+        }
+        return tOOP;
+    }
+
     public Boolean proximityCheck(Button butt, Button emptyButt){
 
         int emptyC = GridPane.getColumnIndex(emptyButt);
@@ -427,10 +537,6 @@ public class Main extends Application {
         int tmpC = GridPane.getColumnIndex(butt);
         int tmpR = GridPane.getRowIndex(butt);
         String buttPos = tmpC + "" + tmpR;
-
-        //System.out.println(emptyPos);
-        //System.out.println(buttPos);
-
 
         if((emptyPos.equals("00")) && (buttPos.equals("10") || buttPos.equals("01"))){
             return true;
@@ -459,18 +565,13 @@ public class Main extends Application {
         if((emptyPos.equals("22")) && (buttPos.equals("12") || buttPos.equals("21"))){
             return true;
         }
-
         return false;
-
-
-
     }
 
     public void counter(){
         counter++;
-
-
     }
+
     public boolean checkWin(ArrayList<Button> butts, ArrayList<ArrayList<Integer>> PositionsDup){
 
         boolean temp = true;
@@ -483,26 +584,70 @@ public class Main extends Application {
             int posC = PositionsDup.get(i).get(0);
             int posR = PositionsDup.get(i).get(1);
 
-            //System.out.print(buttonC);
-            //System.out.print(buttonR);
-            //System.out.print("  ");
-
-            //System.out.print(posC);
-            //System.out.println(posR);
             if (buttonC == posC && buttonR == posR) {
                 temp = true;
                 i++;
             }else{
                 temp = false;
             }
-
-
-
-
         }
 
         return temp;
 
+    }
+
+    public ArrayList<Button> getSurroundingTiles(GridPane sqs, Button s9){
+        ArrayList<Button> buttsNear = new ArrayList<Button>();
+
+        int tmpR = sqs.getRowIndex(s9);
+        int tmpC = sqs.getColumnIndex(s9);
+        String blank = tmpR + "" + tmpC;
+
+        if(blank.equals("00")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
+        }
+        if(blank.equals("10")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,2));
+        }
+        if(blank.equals("20")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
+        }
+        if(blank.equals("01")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,0));
+        }
+        if(blank.equals("11")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
+        }
+        if(blank.equals("21")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
+        }
+        if(blank.equals("02")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
+
+        }
+        if(blank.equals("12")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
+        }
+        if(blank.equals("22")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
+        }
+
+        return buttsNear;
     }
 
     public static void main(String[] args) {
