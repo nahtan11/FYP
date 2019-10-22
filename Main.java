@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -14,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.text.Font;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
@@ -27,6 +29,7 @@ public class Main extends Application {
 
     private int counter = 0;
     private Label label = new Label("Moves: 0");
+
 
 
     @Override // Override the start method in the Application class
@@ -118,6 +121,7 @@ public class Main extends Application {
 
         Button s1 = new Button();
         s1.setText("1");
+        s1.setFont(new Font(80));
         sqs.add(s1, Positions.get(0).get(0), Positions.get(0).get(1));
         s1.setMinWidth(200);
         s1.setMinHeight(200);
@@ -125,6 +129,7 @@ public class Main extends Application {
         butts.add(s1);
 
         Button s2 = new Button();
+        s2.setFont(new Font(80));
         s2.setText("2");
         s2.setMinWidth(200);
         s2.setMinHeight(200);
@@ -134,6 +139,7 @@ public class Main extends Application {
 
         Button s3 = new Button();
         s3.setText("3");
+        s3.setFont(new Font(80));
         s3.setMinWidth(200);
         s3.setMinHeight(200);
         sqs.add(s3, Positions.get(2).get(0), Positions.get(2).get(1));
@@ -142,6 +148,7 @@ public class Main extends Application {
 
         Button s4 = new Button();
         s4.setText("4");
+        s4.setFont(new Font(80));
         s4.setMinWidth(200);
         s4.setMinHeight(200);
         sqs.add(s4, Positions.get(3).get(0), Positions.get(3).get(1));
@@ -150,14 +157,15 @@ public class Main extends Application {
 
         Button s5 = new Button();
         s5.setText("5");
+        s5.setFont(new Font(80));
         s5.setMinWidth(200);
         s5.setMinHeight(200);
         sqs.add(s5, Positions.get(4).get(0), Positions.get(4).get(1));
         s5.setStyle("-fx-background-color: MediumSeaGreen");
         butts.add(s5);
-
         Button s6 = new Button();
         s6.setText("6");
+        s6.setFont(new Font(80));
         s6.setMinWidth(200);
         s6.setMinHeight(200);
         sqs.add(s6, Positions.get(5).get(0), Positions.get(5).get(1));
@@ -166,6 +174,7 @@ public class Main extends Application {
 
         Button s7 = new Button();
         s7.setText("7");
+        s7.setFont(new Font(80));
         s7.setMinWidth(200);
         s7.setMinHeight(200);
         sqs.add(s7, Positions.get(6).get(0), Positions.get(6).get(1));
@@ -174,6 +183,7 @@ public class Main extends Application {
 
         Button s8 = new Button();
         s8.setText("8");
+        s8.setFont(new Font(80));
         s8.setMinWidth(200);
         s8.setMinHeight(200);
         sqs.add(s8, Positions.get(7).get(0), Positions.get(7).get(1));
@@ -185,23 +195,37 @@ public class Main extends Application {
         s9.setMinHeight(200);
         sqs.add(s9, Positions.get(8).get(0), Positions.get(8).get(1));
 
-        /*Play.setOnAction(new EventHandler<ActionEvent>() {
+        Play.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                if(!(checkWin(butts,PositionsDup))){
+                while(!(checkWin(butts,PositionsDup))){
 
                     int i = (int) Math.floor(Math.random() * (7 - 0 + 1) + 0);
                     System.out.println(i);
 
-                    butts.get(i).fire();
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
+                    if(proximityCheck(butts.get(i), s9)) {
+                        int tmpR = GridPane.getRowIndex(butts.get(i));
+                        int tmpC = GridPane.getColumnIndex(butts.get(i));
+                        sqs.getChildren().remove(butts.get(i));
+                        sqs.add(butts.get(i), GridPane.getColumnIndex(s9), GridPane.getRowIndex(s9));
+                        sqs.getChildren().remove(s9);
+                        sqs.add(s9, tmpC, tmpR);
+                        counter();
+                        label.setText("Moves: "+Integer.toString(counter));
+                        if(checkWin(butts,PositionsDup)){
+                            if (!popup.isShowing())
+                                popup.show(primaryStage);
+                            else
+                                popup.hide();
+                        }
+                    }
+                    else{
+                        System.out.println("false");
                     }
 
-                    Play.fire();
+
+
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
@@ -211,8 +235,7 @@ public class Main extends Application {
 
 
             }
-        });*/
-
+        });
 
 
 
@@ -409,7 +432,7 @@ public class Main extends Application {
             }
         });
 
-        Scene scene = new Scene(back, 750, 750);
+        Scene scene = new Scene(back, 750, 650);
         primaryStage.setTitle("8-Puzzle"); // Set the stage title
         primaryStage.setScene(scene); // Place the scene in the stage
         primaryStage.show(); // Display the stage
@@ -472,11 +495,9 @@ public class Main extends Application {
 
     }
     public boolean checkWin(ArrayList<Button> butts, ArrayList<ArrayList<Integer>> PositionsDup){
-
         boolean temp = true;
         int i = 0;
         while (temp && i < butts.size()) {
-
             int buttonC = GridPane.getColumnIndex(butts.get(i));
             int buttonR = GridPane.getRowIndex(butts.get(i));
 
@@ -495,14 +516,8 @@ public class Main extends Application {
             }else{
                 temp = false;
             }
-
-
-
-
         }
-
         return temp;
-
     }
 
     public static void main(String[] args) {
