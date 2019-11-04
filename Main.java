@@ -18,13 +18,15 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.sql.Array;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -239,7 +241,7 @@ public class Main extends Application {
         PositionsDup.add(sq25);
 
 
-        //Collections.shuffle(Positions);
+        Collections.shuffle(Positions);
 
         ArrayList<Button> butts = new ArrayList<Button>();
 
@@ -439,7 +441,9 @@ public class Main extends Application {
         butts.add(s24);
 
         Button s25 = new Button();
-        //s25.setText("25");
+        s25.setText("-1");
+        s25.setTextFill(Color.rgb(200,200,200,0.0));
+
         s25.setMinWidth(100);
         s25.setMinHeight(100);
         sqs.add(s25, Positions.get(24).get(0), Positions.get(24).get(1));
@@ -449,6 +453,8 @@ public class Main extends Application {
         Task<Void> random = new Task<Void>() {// Implement required call() method
             @Override
             protected Void call() throws Exception {
+
+                Set<String> boardState = new LinkedHashSet<String>();
                 // Add delay code from initial attempt
                 try {
                     Thread.sleep(1000);
@@ -458,23 +464,19 @@ public class Main extends Application {
                 while(!(checkWin(butts,PositionsDup))){
 
                     ArrayList<Button> buttsNear = getSurroundingTiles(sqs,s25);
-
                     int i = (int) Math.floor(Math.random() * (buttsNear.size()));
-                    System.out.println();
-                    //System.out.println("Blank " + blank);
-                    //System.out.println("index " +i );
 
-                    for(int j =0;j<buttsNear.size();j++){
-                        System.out.print(sqs.getRowIndex(buttsNear.get(j)));
-                        System.out.println(sqs.getColumnIndex(buttsNear.get(j)));
-                    }
+                    String board = getBoardState(sqs);
+                    boardState.add(board);
+                    System.out.println(boardState);
 
                     Platform.runLater(()->buttsNear.get(i).fire());
-                    //Thread.sleep(500);
+                    //Thread.sleep(50);
                     if(!(checkWin(butts,PositionsDup))){
                         Thread.sleep(50);
                     }
-                };
+                }
+
                 return null;
             }
         };
@@ -488,30 +490,73 @@ public class Main extends Application {
                 }
 
                 int level = 0;
-                //int tOOP1 = getTilesOutOfPlace(PositionsDup,butts);
-                //int value1 = level + tOOP1;
 
-                ArrayList<Integer> open = new ArrayList<Integer>();
-                ArrayList<Integer> closed = new ArrayList<Integer>();
-                //System.out.print(value1);
-                //f(n) = g(n) + h(n)
+                //Map<String,BoardInfo> open = new HashMap<String,BoardInfo>();
+                //Map<String,BoardInfo> close = new HashMap<String,BoardInfo>();
+                List<BoardInfo> open = new ArrayList<BoardInfo>();
+                List<BoardInfo> close = new ArrayList<BoardInfo>();
+
+                String initialBoard = getBoardState(sqs);
+                List<String> boardLayoutStart = new ArrayList<String>(Arrays.asList(initialBoard.split(",")));
+                //close.put(initialBoard,new BoardInfo(getTilesOutOfPlace(boardLayoutStart)+level,null));
+                close.add(new BoardInfo(initialBoard,getTilesOutOfPlace(boardLayoutStart)+level,null));
+
+                //Set<String> boardState = new LinkedHashSet<String>();
+
                 while(!(checkWin(butts,PositionsDup))){
+                    String board = getBoardState(sqs);
 
-                    int tOOP = getTilesOutOfPlace(PositionsDup,butts);
-                    ArrayList<Button> buttsNear = getSurroundingTiles(sqs,s25);
+                    List<Button> buttsNear = getSurroundingTiles(sqs,s25);
 
-                    int value = level + tOOP;
 
+
+                    level++;
+                    for(int i = 0;i<buttsNear.size();i++){
+                        List<String> boardLayout = new ArrayList<String>(Arrays.asList(board.split(",")));
+                        String buttTemp;
+                        buttTemp = buttsNear.get(i).getText();
+                        Collections.swap(boardLayout, boardLayout.indexOf(buttTemp), boardLayout.indexOf("-1"));
+
+                        String boardOrder = "";
+
+                        for (String s : boardLayout)
+                        {
+                            boardOrder += s + ",";
+                        }
+                        boardOrder = boardOrder.substring(0, boardOrder.length() - 1);
+
+                        int boardScore = getTilesOutOfPlace(boardLayout) + level;
+                        //open.put(boardOrder,new BoardInfo(boardScore,buttsNear.get(i)));
+                        open.add(new BoardInfo(boardOrder,boardScore,buttsNear.get(i)));
+
+                    }
+                    Collections.sort(open, new Comparator<BoardInfo>(){
+                        public int compare(BoardInfo o1, BoardInfo o2) {
+                            return o1.getScore() - o2.getScore();
+                        }
+                    });
+                    close.add(open.get(0));
+
+                    int levelNext = level;
+                    //System.out.println(open.get(0).button.getText());
+                    boolean prox = proximityCheck(open.get(0).button,s25);
+                    if(prox){
+                        System.out.println("in 1");
+                        Platform.runLater(()->open.get(0).button.fire());
+                    }else{
+                        System.out.println("in 2");
+                        Platform.runLater(()->close.get(close.size()-levelNext).button.fire());
+                    }
+                    open.remove(0);
+
+
+
+
+                    if(!(checkWin(butts,PositionsDup))){
+                        Thread.sleep(50);
+                    }
 
                 }
-
-
-
-
-
-
-
-                // We're not interested in the return value, so return null
                 return null;
             }
         };
@@ -520,22 +565,11 @@ public class Main extends Application {
         Random.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 new Thread(random).start();
-                /*for(int j =0;j<butts.size();j++){
-                    System.out.print(butts.get(j));
-                    System.out.println(PositionsDup.get(j));
-                }*/
             }
         });
         AStar.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 new Thread(aStar).start();
-                int buttonC = GridPane.getColumnIndex(butts.get(0));
-                int buttonR = GridPane.getRowIndex(butts.get(0));
-                //System.out.print(PositionsDup.get(0).get(0));
-                //System.out.println(PositionsDup.get(0).get(1));
-                //System.out.print(buttonR);
-                //System.out.println(buttonC);
-
             }
         });
 
@@ -543,12 +577,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s1, s25)) {
-                    int tmpR = GridPane.getRowIndex(s1);
-                    int tmpC = GridPane.getColumnIndex(s1);
-                    sqs.getChildren().remove(s1);
-                    sqs.add(s1, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s1,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -567,12 +596,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s2, s25)) {
-                    int tmpR = GridPane.getRowIndex(s2);
-                    int tmpC = GridPane.getColumnIndex(s2);
-                    sqs.getChildren().remove(s2);
-                    sqs.add(s2, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s2,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -591,12 +615,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s3, s25)) {
-                    int tmpR = GridPane.getRowIndex(s3);
-                    int tmpC = GridPane.getColumnIndex(s3);
-                    sqs.getChildren().remove(s3);
-                    sqs.add(s3, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s3,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -615,12 +634,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s4, s25)) {
-                    int tmpR = GridPane.getRowIndex(s4);
-                    int tmpC = GridPane.getColumnIndex(s4);
-                    sqs.getChildren().remove(s4);
-                    sqs.add(s4, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s4,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -639,12 +653,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s5, s25)) {
-                    int tmpR = GridPane.getRowIndex(s5);
-                    int tmpC = GridPane.getColumnIndex(s5);
-                    sqs.getChildren().remove(s5);
-                    sqs.add(s5, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s5,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -663,12 +672,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s6, s25)) {
-                    int tmpR = GridPane.getRowIndex(s6);
-                    int tmpC = GridPane.getColumnIndex(s6);
-                    sqs.getChildren().remove(s6);
-                    sqs.add(s6, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s6,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -687,12 +691,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s7,s25)) {
-                    int tmpR = GridPane.getRowIndex(s7);
-                    int tmpC = GridPane.getColumnIndex(s7);
-                    sqs.getChildren().remove(s7);
-                    sqs.add(s7, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s7,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -711,37 +710,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s8, s25)) {
-                    int tmpR = GridPane.getRowIndex(s8);
-                    int tmpC = GridPane.getColumnIndex(s8);
-                    sqs.getChildren().remove(s8);
-                    sqs.add(s8, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
-                    counter();
-                    label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
-                        if (!popup.isShowing())
-                            popup.show(primaryStage);
-                        else
-                            popup.hide();
-                    }
-                }
-                else{
-                    System.out.println("false");
-                }
-            }
-        });
-
-        s8.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-
-                if(proximityCheck(s8, s25)) {
-                    int tmpR = GridPane.getRowIndex(s8);
-                    int tmpC = GridPane.getColumnIndex(s8);
-                    sqs.getChildren().remove(s8);
-                    sqs.add(s8, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s8,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -761,12 +730,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s9, s25)) {
-                    int tmpR = GridPane.getRowIndex(s9);
-                    int tmpC = GridPane.getColumnIndex(s9);
-                    sqs.getChildren().remove(s9);
-                    sqs.add(s9, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s9,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -786,12 +750,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s10, s25)) {
-                    int tmpR = GridPane.getRowIndex(s10);
-                    int tmpC = GridPane.getColumnIndex(s10);
-                    sqs.getChildren().remove(s10);
-                    sqs.add(s10, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s10,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -811,12 +770,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s11, s25)) {
-                    int tmpR = GridPane.getRowIndex(s11);
-                    int tmpC = GridPane.getColumnIndex(s11);
-                    sqs.getChildren().remove(s11);
-                    sqs.add(s11, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s11,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -836,12 +790,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s12, s25)) {
-                    int tmpR = GridPane.getRowIndex(s12);
-                    int tmpC = GridPane.getColumnIndex(s12);
-                    sqs.getChildren().remove(s12);
-                    sqs.add(s12, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s12,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -861,12 +810,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s13, s25)) {
-                    int tmpR = GridPane.getRowIndex(s13);
-                    int tmpC = GridPane.getColumnIndex(s13);
-                    sqs.getChildren().remove(s13);
-                    sqs.add(s13, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s13,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -886,12 +830,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s14, s25)) {
-                    int tmpR = GridPane.getRowIndex(s14);
-                    int tmpC = GridPane.getColumnIndex(s14);
-                    sqs.getChildren().remove(s14);
-                    sqs.add(s14, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s14,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -911,12 +850,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s15, s25)) {
-                    int tmpR = GridPane.getRowIndex(s15);
-                    int tmpC = GridPane.getColumnIndex(s15);
-                    sqs.getChildren().remove(s15);
-                    sqs.add(s15, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s15,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -936,12 +870,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s16, s25)) {
-                    int tmpR = GridPane.getRowIndex(s16);
-                    int tmpC = GridPane.getColumnIndex(s16);
-                    sqs.getChildren().remove(s16);
-                    sqs.add(s16, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s16,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -961,12 +890,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s17, s25)) {
-                    int tmpR = GridPane.getRowIndex(s17);
-                    int tmpC = GridPane.getColumnIndex(s17);
-                    sqs.getChildren().remove(s17);
-                    sqs.add(s17, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s17,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -986,12 +910,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s18, s25)) {
-                    int tmpR = GridPane.getRowIndex(s18);
-                    int tmpC = GridPane.getColumnIndex(s18);
-                    sqs.getChildren().remove(s18);
-                    sqs.add(s18, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s18,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1011,12 +930,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s19, s25)) {
-                    int tmpR = GridPane.getRowIndex(s19);
-                    int tmpC = GridPane.getColumnIndex(s19);
-                    sqs.getChildren().remove(s19);
-                    sqs.add(s19, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s19,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1036,12 +950,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s20, s25)) {
-                    int tmpR = GridPane.getRowIndex(s20);
-                    int tmpC = GridPane.getColumnIndex(s20);
-                    sqs.getChildren().remove(s20);
-                    sqs.add(s20, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s20,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1061,12 +970,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s21, s25)) {
-                    int tmpR = GridPane.getRowIndex(s21);
-                    int tmpC = GridPane.getColumnIndex(s21);
-                    sqs.getChildren().remove(s21);
-                    sqs.add(s21, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s21,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1086,12 +990,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s22, s25)) {
-                    int tmpR = GridPane.getRowIndex(s22);
-                    int tmpC = GridPane.getColumnIndex(s22);
-                    sqs.getChildren().remove(s22);
-                    sqs.add(s22, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s22,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1111,12 +1010,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s23, s25)) {
-                    int tmpR = GridPane.getRowIndex(s23);
-                    int tmpC = GridPane.getColumnIndex(s23);
-                    sqs.getChildren().remove(s23);
-                    sqs.add(s23, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s23,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1136,12 +1030,7 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
 
                 if(proximityCheck(s24, s25)) {
-                    int tmpR = GridPane.getRowIndex(s24);
-                    int tmpC = GridPane.getColumnIndex(s24);
-                    sqs.getChildren().remove(s24);
-                    sqs.add(s24, GridPane.getColumnIndex(s25), GridPane.getRowIndex(s25));
-                    sqs.getChildren().remove(s25);
-                    sqs.add(s25, tmpC, tmpR);
+                    moveTile(s24,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1169,11 +1058,27 @@ public class Main extends Application {
 
     }
 
-    public int getTilesOutOfPlace(ArrayList<ArrayList<Integer>> PositionsDup, ArrayList<Button> butts) {
+    public void  moveTile(Button button, Button blank, GridPane sqs){
+        int tmpR = GridPane.getRowIndex(button);
+        int tmpC = GridPane.getColumnIndex(button);
+        sqs.getChildren().remove(button);
+        sqs.add(button, GridPane.getColumnIndex(blank), GridPane.getRowIndex(blank));
+        sqs.getChildren().remove(blank);
+        sqs.add(blank, tmpC, tmpR);
+    }
+
+    public int getTilesOutOfPlace(/*ArrayList<ArrayList<Integer>> PositionsDup, ArrayList<Button> butts*/List<String> boardState) {
 
         int tOOP = 0;
+        List<String> winningState = new ArrayList<>(Arrays.asList("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","-1"));
 
-        for(int i = 0;i<PositionsDup.size();i++)
+        for(int i =0;i< winningState.size();i++){
+            if(!(winningState.get(i).equals(boardState.get(i)))){
+                tOOP++;
+            }
+        }
+
+        /*for(int i = 0;i<PositionsDup.size();i++)
         {
             int buttonC = GridPane.getColumnIndex(butts.get(i));
             int buttonR = GridPane.getRowIndex(butts.get(i));
@@ -1185,7 +1090,7 @@ public class Main extends Application {
                 tOOP++;
             }
 
-        }
+        }*/
         return tOOP;
     }
 
@@ -1281,6 +1186,20 @@ public class Main extends Application {
 
     public void counter(){
         counter++;
+    }
+
+    public String getBoardState(GridPane sqs){
+        String boardState = "";
+
+        for (int i =0;i<5;i++){
+            for (int j = 0; j<5;j++){
+                Button tmp = (Button) getNodeFromGridPane(sqs,j,i);
+                boardState += tmp.getText() + ",";
+            }
+        }
+        boardState = boardState.substring(0, boardState.length()-1);
+
+        return boardState;
     }
 
     public boolean checkWin(ArrayList<Button> butts, ArrayList<ArrayList<Integer>> PositionsDup){
@@ -1477,5 +1396,26 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+}
+
+class BoardInfo{
+    String board;
+    int score;
+    Button button;
+    BoardInfo(String board, int score, Button button){
+        this.board = board;
+        this.score = score;
+        this.button = button;
+    }
+    public int getScore (){
+        return score;
+    }
+}
+
+class CustomComparator implements Comparator<BoardInfo> {
+    @Override
+    public int compare(BoardInfo o1, BoardInfo o2) {
+        return o1.getScore() - o2.getScore();
     }
 }
