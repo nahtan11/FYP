@@ -29,13 +29,477 @@ import java.sql.Array;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
+class astar {
+
+    static Map<String, puzzle> metStates  = new HashMap<String, puzzle> ();
+    static Map<String, puzzle> openStates = new HashMap<String, puzzle> ();
+
+
+
+    public static ArrayList<String> PuzzleSolvingObj(puzzle newState, int [][] desired) {
+
+        metStates.put(newState.getCode(), newState);
+        System.out.print("Running....");
+
+
+
+
+
+        int [][] new_puzzle1 = move(1, newState.getState());
+        int [][] new_puzzle2 = move(2, newState.getState());
+        int [][] new_puzzle3 = move(3, newState.getState());
+        int [][] new_puzzle4 = move(4, newState.getState());
+
+        ArrayList<String> winningMoves =new ArrayList<>();
+
+        boolean stop = false;
+        if(new_puzzle1.length >2) {
+            int cost1 = fitness(desired, new_puzzle1);
+            puzzle p1 = new puzzle(converStateToString(new_puzzle1),	newState.getCode(), new_puzzle1, newState.getLevel()+1, cost1);
+            metStates.put(p1.getCode(), p1);
+            openStates.put(p1.getCode(), p1);
+            if(cost1 == 0) {
+                stop = true;
+                winningMoves = tracBack(converStateToString(new_puzzle1));
+            }
+        }
+
+        if(new_puzzle2.length >2 && !stop) {
+            int cost2 = fitness(desired, new_puzzle2);
+            puzzle p2 = new puzzle(converStateToString(new_puzzle2),	newState.getCode(), new_puzzle2, newState.getLevel()+1, cost2);
+            metStates.put(p2.getCode(), p2);
+            openStates.put(p2.getCode(), p2);
+            if(cost2 == 0) {
+                stop = true;
+                winningMoves = tracBack(converStateToString(new_puzzle2));
+            }
+        }
+
+        if(new_puzzle3.length >2 && !stop) {
+            int cost3 = fitness(desired, new_puzzle3);
+            puzzle p3 = new puzzle(converStateToString(new_puzzle3),	newState.getCode(), new_puzzle3, newState.getLevel()+1, cost3);
+            metStates.put(p3.getCode(), p3);
+            openStates.put(p3.getCode(), p3);
+            if(cost3 == 0) {
+                stop = true;
+                winningMoves = tracBack(converStateToString(new_puzzle3));
+            }
+        }
+        if(new_puzzle4.length >2 && !stop) {
+            int cost4 = fitness(desired, new_puzzle4);
+            puzzle p4 = new puzzle(converStateToString(new_puzzle4),	newState.getCode(), new_puzzle4, newState.getLevel()+1, cost4);
+            metStates.put(p4.getCode(), p4);
+            openStates.put(p4.getCode(), p4);
+            if(cost4 == 0) {
+                stop = true;
+                winningMoves = tracBack(converStateToString(new_puzzle4));
+
+            }
+        }
+
+
+
+        int itr = 0;
+        while(!stop) {
+            itr++;
+            System.out.println("Level: "+itr);
+            //int h = metStates.size();
+            //if(h % 150 ==0)
+            //System.out.println(h+" "+openStates.size()+" "+itr++);
+
+            String code = bestToMoveOn(openStates);
+            //System.out.println(openStates.get(code).getCost()+"\tcode");
+            //System.out.println(h+" "+openStates.size()+" "+openStates.get(code).getCost());
+
+            //System.out.println(code+"\tcode");
+            //PrintPuzzle(openStates.get(code).getState());
+            //System.out.println("++++++++++++++");
+
+
+
+
+            int [][] n_puzzle1 = move(1, openStates.get(code).getState());
+            int [][] n_puzzle2 = move(2, openStates.get(code).getState());
+            int [][] n_puzzle3 = move(3, openStates.get(code).getState());
+            int [][] n_puzzle4 = move(4, openStates.get(code).getState());
+
+            /*if(itr==1) {
+                //System.out.println(costInWhile1+"  1");
+                //PrintPuzzle(openStates.get(code).getState());
+                //PrintPuzzle(newState.getState());
+            }*/
+
+            if(n_puzzle1.length >2 && !stop) {
+                int costInWhile1 = fitness(desired, n_puzzle1);
+
+			/*if(itr==1) {
+				System.out.println(costInWhile1+"  1");
+				PrintPuzzle(n_puzzle1);
+			}*/
+                puzzle newP1 = new puzzle(converStateToString(n_puzzle1), code, n_puzzle1, openStates.get(code).getLevel()+1,  costInWhile1);
+                if(!metStates.containsKey(converStateToString(n_puzzle1))) {
+                    openStates.put(converStateToString(n_puzzle1), newP1);
+                    //System.out.println("in2");
+                    metStates.put(converStateToString(n_puzzle1), newP1);
+
+                    if(fitness(desired, n_puzzle1) == 0) {
+                        //PrintPuzzle(desired);
+                        //PrintPuzzle(n_puzzle1);
+                        stop=true;
+                        winningMoves = tracBack(converStateToString(n_puzzle1));
+                        break;
+
+                    }
+                }
+            }
+
+            if(n_puzzle2.length >2 && !stop) {
+                int costInWhile2 = fitness(desired, n_puzzle2);
+			/*if(itr==1) {
+				System.out.println(costInWhile2+"  2");
+				PrintPuzzle(n_puzzle2);
+			}*/
+                puzzle newP2 = new puzzle(converStateToString(n_puzzle2), code, n_puzzle2, openStates.get(code).getLevel()+1,  costInWhile2);
+                if(!metStates.containsKey(converStateToString(n_puzzle2))) {
+                    openStates.put(converStateToString(n_puzzle2), newP2);
+                    metStates.put(converStateToString(n_puzzle2), newP2);
+
+                    if(fitness(desired, n_puzzle2) == 0) {
+                        //PrintPuzzle(desired);
+                        //PrintPuzzle(n_puzzle2);
+                        stop=true;
+                        winningMoves = tracBack(converStateToString(n_puzzle2));
+                        break;
+                    }
+                }
+            }
+
+            if(n_puzzle3.length >2 && !stop) {
+                int costInWhile3 = fitness(desired, n_puzzle3);
+			/*if(itr==1) {
+				System.out.println(costInWhile3+"  3");
+				PrintPuzzle(n_puzzle3);
+			}*/
+                puzzle newP3 = new puzzle(converStateToString(n_puzzle3), code, n_puzzle3, openStates.get(code).getLevel()+1,  costInWhile3);
+                if(!metStates.containsKey(converStateToString(n_puzzle3))) {
+                    openStates.put(converStateToString(n_puzzle3), newP3);
+                    metStates.put(converStateToString(n_puzzle3), newP3);
+
+                    if(fitness(desired, n_puzzle3) == 0){
+                        //PrintPuzzle(desired);
+                        //PrintPuzzle(n_puzzle3);
+                        stop=true;
+                        winningMoves = tracBack(converStateToString(n_puzzle3));
+                        break;
+                    }
+                }
+            }
+
+            if(n_puzzle4.length >2 && !stop) {
+                int costInWhile4 = fitness(desired, n_puzzle4);
+			/*if(itr==1) {
+				System.out.println(costInWhile4+"  4");
+				PrintPuzzle(n_puzzle4);
+			}*/
+                puzzle newP4 = new puzzle(converStateToString(n_puzzle4), code, n_puzzle4, openStates.get(code).getLevel()+1,  costInWhile4);
+                if(!metStates.containsKey(converStateToString(n_puzzle4))) {
+                    openStates.put(converStateToString(n_puzzle4), newP4);
+                    metStates.put(converStateToString(n_puzzle4), newP4);
+
+                    if(fitness(desired, n_puzzle4) == 0){
+                        //PrintPuzzle(desired);
+                        //PrintPuzzle(n_puzzle4);
+                        stop=true;
+                        winningMoves = tracBack(converStateToString(n_puzzle4));
+                        break;
+                    }
+                }
+            }
+
+            openStates.remove(code);
+
+        }
+        return winningMoves;
+
+       /* metStates.entrySet().forEach(entry->{
+            System.out.println(entry.getKey()+ " " + entry.getValue());
+        });*/
+
+
+    }
+
+
+    public static ArrayList<String> tracBack(String code) {
+        System.out.println("Trace back ...");
+        ArrayList<String> winningMoves = new ArrayList<>();
+        String father = metStates.get(code).getParentCode();
+        winningMoves.add(father);
+        boolean doUntil = false;
+        //String coder = metStates.get(code).getCode();
+        //String father = metStates.get(code).getParentCode();
+        //String grandfather = metStates.get(father).getParentCode();
+        //String grand2father = metStates.get(grandfather).getParentCode();
+        //String grand3father = metStates.get(grand2father).getParentCode();
+        PrintPuzzle(metStates.get(code).getState());
+
+        while(!father.equals("root")) {
+            PrintPuzzle(metStates.get(father).getState());
+            father = metStates.get(father).getParentCode();
+            winningMoves.add(father);
+            //System.out.println(father);
+        }
+        for(int i=0;i<winningMoves.size();i++){
+            System.out.println(winningMoves.get(i));
+        }
+        return winningMoves;
+
+    }
+
+
+    public static String bestToMoveOn(Map<String, puzzle> openSt) {
+
+        ArrayList <puzzle> q = new ArrayList <puzzle>();
+
+
+
+        int cost = 2147480647;
+        String code = "";
+        for(puzzle p : openSt.values()) {
+            if((p.getCost()+p.getLevel()) < cost ) {
+                cost = p.getCost()+p.getLevel();
+
+            }
+        }
+
+        for(puzzle p : openSt.values()) {
+            if((p.getCost()+p.getLevel()) == cost ) {
+                q.add(p);
+            }
+        }
+
+        int dept = 2147480647;
+        for(puzzle p : q) {
+            if(dept>p.getLevel()) {
+                dept = p.getLevel();
+                code = p.getCode();
+            }
+        }
+
+        return code;
+
+    }
+
+
+
+    public static String converStateToString(int [][] puzzle) {
+        String State = "";
+        for (int i=0;i<puzzle.length;i++) {
+            for (int j=0;j<puzzle.length;j++) {
+                State = State + puzzle[i][j]+".";
+            }
+        }
+        return State;
+    }
+
+
+    public static void PrintPuzzle(int [][] puzzle) {
+        for (int i=0;i<puzzle.length;i++) {
+            for (int j=0;j<puzzle.length;j++) {
+                if(puzzle[i][j]!=-1)
+                    System.out.print(puzzle[i][j]+"\t");
+                else
+                    System.out.print("X\t");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+
+    /*public static boolean hasChanged(int [][] puzzle1, int [][] puzzle2) {
+        for (int i=0;i<puzzle1.length;i++) {
+            for (int j=0;j<puzzle1.length;j++) {
+                if(puzzle1[i][j] != puzzle2[i][j]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }*/
+
+    public static int [] X_location(int [][] puzzle) {
+        for (int i=0;i<puzzle.length;i++) {
+            for (int j=0;j<puzzle.length;j++) {
+                if(puzzle[i][j] == -1) {
+                    return new int [] {i, j};
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public static int [][] move(int direction, int [][] puzzle) {
+
+        int empty_x = X_location(puzzle)[0];
+        int empty_y = X_location(puzzle)[1];
+        int [][] new_puzzle = new int [puzzle.length][puzzle.length];
+        int [][] nullArray = {{1,1},{1,1}} ;
+        for (int i=0;i<puzzle.length;i++) {
+            for (int j=0;j<puzzle.length;j++) {
+                new_puzzle[i][j] = puzzle[i][j];
+            }
+        }
+        if(direction == 1) {
+            if(empty_x>0) {
+                int temp = new_puzzle[empty_x][empty_y];
+                new_puzzle[empty_x][empty_y] = new_puzzle[empty_x-1][empty_y];
+                new_puzzle[empty_x-1][empty_y] = temp;
+                return new_puzzle;
+            }
+        }
+        if(direction == 2) {
+            if(empty_y>0) {
+                int temp = new_puzzle[empty_x][empty_y];
+                new_puzzle[empty_x][empty_y] = new_puzzle[empty_x][empty_y-1];
+                new_puzzle[empty_x][empty_y-1] = temp;
+                return new_puzzle;
+            }
+        }
+        if(direction == 3) {
+            if(empty_x<new_puzzle.length-1) {
+                int temp = new_puzzle[empty_x][empty_y];
+                new_puzzle[empty_x][empty_y] = new_puzzle[empty_x+1][empty_y];
+                new_puzzle[empty_x+1][empty_y] = temp;
+                return new_puzzle;
+            }
+        }
+        if(direction == 4) {
+            if(empty_y<new_puzzle.length-1) {
+                int temp = new_puzzle[empty_x][empty_y];
+                new_puzzle[empty_x][empty_y] = new_puzzle[empty_x][empty_y+1];
+                new_puzzle[empty_x][empty_y+1] = temp;
+                return new_puzzle;
+            }
+        }
+
+
+        return nullArray;
+    }
+
+
+
+    public static int fitness(int [][] desired, int [][] puzzle) {
+        int cost = 0;
+        for(int t = 1; t<puzzle.length*puzzle.length;t++) {
+            int x1 = -1;int y1 = -1;int x2 = -1;int y2 = -1;
+            for (int i=0;i<puzzle.length;i++) {
+                for (int j=0;j<puzzle.length;j++) {
+                    if(desired[i][j] == t) {
+                        x1 = i;
+                        y1 = j;
+                    }
+                    if(puzzle[i][j] == t) {
+                        x2 = i;
+                        y2 = j;
+                    }
+                    //System.out.println(puzzle[i][j]+"  "+desired[i][j]);
+                }
+            }
+
+            //System.out.println(x1+" "+x2+" "+y1+" "+y2);
+            cost += Math.abs(x1-x2)+Math.abs(y1-y2);
+        }
+        return cost;
+    }
+
+    /*public static int fitnessless(int [][] desired, int [][] puzzle) {
+        int cost = puzzle.length*puzzle.length;
+
+        for (int i=0;i<puzzle.length;i++) {
+            for (int j=0;j<puzzle.length;j++) {
+                if(desired[i][j] == puzzle[i][j]) {
+                    cost--;
+                }
+            }
+        }
+
+        return cost;
+    }*/
+
+}
+
+class puzzle {
+
+    String code;
+    String ParentCode;
+    int [][] state;
+    int level;
+    int cost;
+
+    puzzle(String code,	String ParentCode, int [][] state, int level, int cost) {
+        this.code = code;
+        this.ParentCode = ParentCode;
+
+        this.state = new int [state.length][state.length];
+        for(int i=0;i<state.length;i++) {
+            for(int j=0;j<state.length;j++) {
+                this.state[i][j] = state[i][j];
+            }
+        }
+        this.level = level;
+        this.cost = cost;
+    }
+
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setParentCode(String parentcode) {
+        this.ParentCode = parentcode;
+    }
+
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
+
+    public String getCode() {
+        return this.code;
+    }
+
+    public String getParentCode() {
+        return this.ParentCode;
+    }
+
+
+    public int  getLevel() {
+        return this.level;
+    }
+
+    public int[][]  getState() {
+        return this.state;
+    }
+
+    public int getCost() {
+        return this.cost;
+    }
+}
+
 /**
  * Main
  */
+
 public class Main extends Application {
 
     private int counter = 0;
     private Label label = new Label("Moves: 0");
+    private boolean shuffling = false;
 
     private Node getNodeFromGridPane(GridPane pane, int col, int row) {
         for (Node node : pane.getChildren()) {
@@ -45,7 +509,7 @@ public class Main extends Application {
         }
         return null;
     }
-
+    static Map<String, puzzle> states  = new HashMap<String, puzzle> ();
 
 
     @Override // Override the start method in the Application class
@@ -76,6 +540,13 @@ public class Main extends Application {
         AStar.setMinHeight(20);
         //back.setTop(AStar);
         hBox.getChildren().add(AStar);
+
+        Button shuffle = new Button();
+        shuffle.setText("Shuffle Board");
+        shuffle.setMinWidth(20);
+        shuffle.setMinHeight(20);
+        //back.setTop(AStar);
+        hBox.getChildren().add(shuffle);
 
         // create a label
         Label popupLabel = new Label("You Win!");
@@ -241,7 +712,7 @@ public class Main extends Application {
         PositionsDup.add(sq25);
 
 
-        Collections.shuffle(Positions);
+        //Collections.shuffle(Positions);
 
         ArrayList<Button> butts = new ArrayList<Button>();
 
@@ -450,6 +921,10 @@ public class Main extends Application {
         //s25.setStyle("-fx-background-color: MediumSeaGreen");
         butts.add(s25);
 
+
+
+
+
         Task<Void> random = new Task<Void>() {// Implement required call() method
             @Override
             protected Void call() throws Exception {
@@ -489,7 +964,68 @@ public class Main extends Application {
                 } catch (Exception e) {
                 }
 
-                int level = 0;
+
+                int [][] desired = {{1,2,3,4,5}, {6,7,8,9,10},{11,12,13,14,15}, {16,17,18,19,20},{21,22,23,24,-1}};
+                int [][] puzzle  = new int [5][5];
+
+                ArrayList<String> winningMoves = new ArrayList<>();
+
+                String board = getBoardState(sqs);
+                String [] boardNums = board.split(",");
+
+                int boardIndex = 0;
+                for(int i=0;i<5;i++){
+                    for (int j=0;j<5;j++){
+                        puzzle[i][j] = Integer.parseInt(boardNums[boardIndex]);
+                        boardIndex++;
+                    }
+                }
+
+
+
+
+
+
+                int lev = 0;
+                //System.out.println("in1");
+                puzzle p = new puzzle(astar.converStateToString(puzzle),	"root", puzzle, 0, astar.fitness(desired, puzzle));
+                /*System.out.println(p.getCode());*/
+                winningMoves = astar.PuzzleSolvingObj(p, desired);
+                winningMoves.remove("root");
+                Collections.reverse(winningMoves);
+                //System.out.println(winningMoves.get(0));
+                System.out.println("All States");
+                for (int j=0;j<winningMoves.size();j++){
+                    System.out.println(winningMoves.get(j));
+                }
+                System.out.println("-------------------------------------\n");
+                //System.out.print(winningMoves.size());
+
+
+
+
+                //Collections.swap(boardLayout, boardLayout.indexOf(buttTemp), boardLayout.indexOf("-1"));
+                System.out.println("Begin.......");
+                for(int i=0;i<winningMoves.size();i++){
+                    //List<String> boardLayout = new ArrayList<String>(Arrays.asList(board.split(",")));
+                    String tempWM = winningMoves.get(i).toString();
+                    List<String> boardLayout = new ArrayList<String>(Arrays.asList(tempWM.split("\\.")));
+
+                    System.out.println(tempWM);
+                    System.out.println();
+                    //int tempBlank = tempWM.indexOf("-1");
+                    //System.out.print(tempBlank);
+                    System.out.println("Move: "+boardLayout.indexOf("-1"));
+                    for (int j=0;j<butts.size();j++){
+                        System.out.print(butts.get(j).getText() + ".");
+                    }
+                    System.out.println();
+                    Platform.runLater(()->butts.get(boardLayout.indexOf("-1")).fire());
+                    Thread.sleep(1000);
+                }
+
+
+                /*
 
                 //Map<String,BoardInfo> open = new HashMap<String,BoardInfo>();
                 //Map<String,BoardInfo> close = new HashMap<String,BoardInfo>();
@@ -504,7 +1040,7 @@ public class Main extends Application {
                 //Set<String> boardState = new LinkedHashSet<String>();
 
                 while(!(checkWin(butts,PositionsDup))){
-                    String board = getBoardState(sqs);
+                    String board2 = getBoardState(sqs);
 
                     List<Button> buttsNear = getSurroundingTiles(sqs,s25);
 
@@ -556,9 +1092,40 @@ public class Main extends Application {
                         Thread.sleep(50);
                     }
 
-                }
+                }*/
                 return null;
             }
+        };
+
+        Task<Void> shuffleBoard = new Task<Void>() {// Implement required call() method
+            @Override
+            protected Void call() throws Exception {
+
+                Set<String> boardState = new LinkedHashSet<String>();
+                int shuffleLevel = 0;
+                shuffling =true;
+                // Add delay code from initial attempt
+                try {
+                    Thread.sleep(500);
+                } catch (Exception e) {
+                }
+
+                while(shuffleLevel!=125){
+
+                    ArrayList<Button> buttsNear = getSurroundingTiles(sqs,s25);
+                    int i = (int) Math.floor(Math.random() * (buttsNear.size()));
+
+                    Platform.runLater(()->buttsNear.get(i).fire());
+                    //Thread.sleep(50);
+
+                    Thread.sleep(15);
+                    shuffleLevel++;
+                }
+
+                shuffling=false;
+                return null;
+            }
+
         };
 
 
@@ -572,11 +1139,19 @@ public class Main extends Application {
                 new Thread(aStar).start();
             }
         });
+        shuffle.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                new Thread(shuffleBoard).start();
+            }
+        });
 
         s1.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-
-                if(proximityCheck(s1, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s1,s25,sqs);
+                }
+                else if(proximityCheck(s1, s25)) {
                     moveTile(s1,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -595,7 +1170,11 @@ public class Main extends Application {
         s2.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s2, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s2,s25,sqs);
+                }
+                else if(proximityCheck(s2, s25)) {
                     moveTile(s2,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -614,7 +1193,11 @@ public class Main extends Application {
         s3.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s3, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s3,s25,sqs);
+                }
+                else if(proximityCheck(s3, s25)) {
                     moveTile(s3,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -633,7 +1216,11 @@ public class Main extends Application {
         s4.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s4, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s4,s25,sqs);
+                }
+                else if(proximityCheck(s4, s25)) {
                     moveTile(s4,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -652,7 +1239,11 @@ public class Main extends Application {
         s5.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s5, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s5,s25,sqs);
+                }
+                else if(proximityCheck(s5, s25)) {
                     moveTile(s5,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -671,7 +1262,11 @@ public class Main extends Application {
         s6.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s6, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s6,s25,sqs);
+                }
+                else if(proximityCheck(s6, s25)) {
                     moveTile(s6,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -690,7 +1285,11 @@ public class Main extends Application {
         s7.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s7,s25)) {
+                if(shuffling)
+                {
+                    moveTile(s7,s25,sqs);
+                }
+                else if(proximityCheck(s7,s25)) {
                     moveTile(s7,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -709,7 +1308,11 @@ public class Main extends Application {
         s8.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s8, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s8,s25,sqs);
+                }
+                else if(proximityCheck(s8, s25)) {
                     moveTile(s8,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -725,11 +1328,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s9.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s9, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s9,s25,sqs);
+                }
+                else if(proximityCheck(s9, s25)) {
                     moveTile(s9,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -745,11 +1351,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s10.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s10, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s10,s25,sqs);
+                }
+                else if(proximityCheck(s10, s25)) {
                     moveTile(s10,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -765,11 +1374,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s11.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s11, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s11,s25,sqs);
+                }
+                else if(proximityCheck(s11, s25)) {
                     moveTile(s11,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -785,11 +1397,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s12.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s12, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s12,s25,sqs);
+                }
+                else if(proximityCheck(s12, s25)) {
                     moveTile(s12,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -805,11 +1420,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s13.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s13, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s13,s25,sqs);
+                }
+                else if(proximityCheck(s13, s25)) {
                     moveTile(s13,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -825,11 +1443,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s14.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s14, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s14,s25,sqs);
+                }
+                else if(proximityCheck(s14, s25)) {
                     moveTile(s14,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -845,11 +1466,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s15.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s15, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s15,s25,sqs);
+                }
+                else if(proximityCheck(s15, s25)) {
                     moveTile(s15,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -865,11 +1489,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s16.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s16, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s16,s25,sqs);
+                }
+                else if(proximityCheck(s16, s25)) {
                     moveTile(s16,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -885,11 +1512,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s17.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s17, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s17,s25,sqs);
+                }
+                else if(proximityCheck(s17, s25)) {
                     moveTile(s17,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -905,11 +1535,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s18.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s18, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s18,s25,sqs);
+                }
+                else if(proximityCheck(s18, s25)) {
                     moveTile(s18,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -925,11 +1558,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s19.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s19, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s19,s25,sqs);
+                }
+                else if(proximityCheck(s19, s25)) {
                     moveTile(s19,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -945,11 +1581,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s20.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s20, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s20,s25,sqs);
+                }
+                else if(proximityCheck(s20, s25)) {
                     moveTile(s20,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -965,11 +1604,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s21.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s21, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s21,s25,sqs);
+                }
+                else if(proximityCheck(s21, s25)) {
                     moveTile(s21,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -985,11 +1627,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s22.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s22, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s22,s25,sqs);
+                }
+                else if(proximityCheck(s22, s25)) {
                     moveTile(s22,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1005,11 +1650,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s23.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s23, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s23,s25,sqs);
+                }
+                else if(proximityCheck(s23, s25)) {
                     moveTile(s23,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1025,11 +1673,14 @@ public class Main extends Application {
                 }
             }
         });
-
         s24.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
-                if(proximityCheck(s24, s25)) {
+                if(shuffling)
+                {
+                    moveTile(s24,s25,sqs);
+                }
+                else if(proximityCheck(s24, s25)) {
                     moveTile(s24,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1045,8 +1696,6 @@ public class Main extends Application {
                 }
             }
         });
-
-
 
 
         Scene scene = new Scene(back, 750, 750);
