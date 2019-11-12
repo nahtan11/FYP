@@ -64,7 +64,7 @@ class astar {
             }
         }
 
-        if(new_puzzle2.length >2 && !stop) {
+        if(new_puzzle2.length >2) {
             int cost2 = fitness(desired, new_puzzle2);
             puzzle p2 = new puzzle(converStateToString(new_puzzle2),	newState.getCode(), new_puzzle2, newState.getLevel()+1, cost2);
             metStates.put(p2.getCode(), p2);
@@ -75,7 +75,7 @@ class astar {
             }
         }
 
-        if(new_puzzle3.length >2 && !stop) {
+        if(new_puzzle3.length >2) {
             int cost3 = fitness(desired, new_puzzle3);
             puzzle p3 = new puzzle(converStateToString(new_puzzle3),	newState.getCode(), new_puzzle3, newState.getLevel()+1, cost3);
             metStates.put(p3.getCode(), p3);
@@ -85,7 +85,7 @@ class astar {
                 winningMoves = tracBack(converStateToString(new_puzzle3));
             }
         }
-        if(new_puzzle4.length >2 && !stop) {
+        if(new_puzzle4.length >2) {
             int cost4 = fitness(desired, new_puzzle4);
             puzzle p4 = new puzzle(converStateToString(new_puzzle4),	newState.getCode(), new_puzzle4, newState.getLevel()+1, cost4);
             metStates.put(p4.getCode(), p4);
@@ -129,7 +129,7 @@ class astar {
                 //PrintPuzzle(newState.getState());
             }*/
 
-            if(n_puzzle1.length >2 && !stop) {
+            if(n_puzzle1.length >2) {
                 int costInWhile1 = fitness(desired, n_puzzle1);
 
 			/*if(itr==1) {
@@ -145,7 +145,7 @@ class astar {
                     if(fitness(desired, n_puzzle1) == 0) {
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle1);
-                        stop=true;
+
                         winningMoves = tracBack(converStateToString(n_puzzle1));
                         break;
 
@@ -153,7 +153,7 @@ class astar {
                 }
             }
 
-            if(n_puzzle2.length >2 && !stop) {
+            if(n_puzzle2.length >2) {
                 int costInWhile2 = fitness(desired, n_puzzle2);
 			/*if(itr==1) {
 				System.out.println(costInWhile2+"  2");
@@ -167,14 +167,14 @@ class astar {
                     if(fitness(desired, n_puzzle2) == 0) {
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle2);
-                        stop=true;
+
                         winningMoves = tracBack(converStateToString(n_puzzle2));
                         break;
                     }
                 }
             }
 
-            if(n_puzzle3.length >2 && !stop) {
+            if(n_puzzle3.length >2) {
                 int costInWhile3 = fitness(desired, n_puzzle3);
 			/*if(itr==1) {
 				System.out.println(costInWhile3+"  3");
@@ -188,14 +188,14 @@ class astar {
                     if(fitness(desired, n_puzzle3) == 0){
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle3);
-                        stop=true;
+
                         winningMoves = tracBack(converStateToString(n_puzzle3));
                         break;
                     }
                 }
             }
 
-            if(n_puzzle4.length >2 && !stop) {
+            if(n_puzzle4.length >2 ) {
                 int costInWhile4 = fitness(desired, n_puzzle4);
 			/*if(itr==1) {
 				System.out.println(costInWhile4+"  4");
@@ -233,6 +233,7 @@ class astar {
         System.out.println("Trace back ...");
         ArrayList<String> winningMoves = new ArrayList<>();
         String father = metStates.get(code).getParentCode();
+        winningMoves.add(code);
         winningMoves.add(father);
         boolean doUntil = false;
         //String coder = metStates.get(code).getCode();
@@ -994,10 +995,10 @@ public class Main extends Application {
                 winningMoves.remove("root");
                 Collections.reverse(winningMoves);
                 //System.out.println(winningMoves.get(0));
-                System.out.println("All States");
-                for (int j=0;j<winningMoves.size();j++){
+                //System.out.println("All States");
+                /*for (int j=0;j<winningMoves.size();j++){
                     System.out.println(winningMoves.get(j));
-                }
+                }*/
                 System.out.println("-------------------------------------\n");
                 //System.out.print(winningMoves.size());
 
@@ -1006,22 +1007,57 @@ public class Main extends Application {
 
                 //Collections.swap(boardLayout, boardLayout.indexOf(buttTemp), boardLayout.indexOf("-1"));
                 System.out.println("Begin.......");
-                for(int i=0;i<winningMoves.size();i++){
+                for(int i=1;i<winningMoves.size();i++){
                     //List<String> boardLayout = new ArrayList<String>(Arrays.asList(board.split(",")));
-                    String tempWM = winningMoves.get(i).toString();
-                    List<String> boardLayout = new ArrayList<String>(Arrays.asList(tempWM.split("\\.")));
+                    String currentBoard = winningMoves.get(i-1).toString();
+                    List<String> currentBoardLayout = new ArrayList<String>(Arrays.asList(currentBoard.split("\\.")));
 
-                    System.out.println(tempWM);
-                    System.out.println();
+                    String nextBoard = winningMoves.get(i).toString();
+                    List<String> nextBoardLayout = new ArrayList<String>(Arrays.asList(nextBoard.split("\\.")));
+                    int indexOfMove = nextBoardLayout.indexOf("-1");
+                    String moveToMake = currentBoardLayout.get(indexOfMove);
+                    System.out.println(currentBoard);
+
+                    for(int j=0;j<butts.size();j++){
+                        if(butts.get(j).getText().equals(moveToMake)){
+                            Button btMove = butts.get(j);
+                            Platform.runLater(()->btMove.fire());
+                        }
+                    }
+                    //String winningMove = currentBoardLayout.get(nextBoardLayout.size()-1);
+
+                    /*for(int k=0;k<butts.size();k++){
+                        if(butts.get(k).getText().equals(winningMove)){
+                            Button btMove = butts.get(k);
+                            Platform.runLater(()->btMove.fire());
+                        }
+                    }*/
+
+
+
+                    //System.out.println(tempWM);
+                    //System.out.println();
                     //int tempBlank = tempWM.indexOf("-1");
                     //System.out.print(tempBlank);
-                    System.out.println("Move: "+boardLayout.indexOf("-1"));
+                    //System.out.println("Move: "+boardLayout.indexOf("-1"));
+                    /*for (int j=0;j<butts.size();j++){
+                        System.out.print(butts.get(j).getText() + ".");
+                    }*/
+                    /*System.out.println();
+                    System.out.println("Button: " + butts.get(boardLayout.indexOf("-1")).getText());
+                    for (int j=0;j<boardLayout.size();j++){
+                        System.out.print(boardLayout.get(j) + ".");
+                    }
+                    System.out.println();
+                    System.out.println("Index: " + boardLayout.indexOf("-1"));
                     for (int j=0;j<butts.size();j++){
                         System.out.print(butts.get(j).getText() + ".");
                     }
                     System.out.println();
-                    Platform.runLater(()->butts.get(boardLayout.indexOf("-1")).fire());
-                    Thread.sleep(1000);
+                    int boardInd = boardLayout.indexOf("-1");
+                    int boardIndTmp = boardLayout.indexOf("-1");*/
+                    //Platform.runLater(()->butts.get(boardLayout.indexOf("-1")).fire());
+                    Thread.sleep(250);
                 }
 
 
@@ -1110,7 +1146,7 @@ public class Main extends Application {
                 } catch (Exception e) {
                 }
 
-                while(shuffleLevel!=125){
+                while(shuffleLevel!=75){
 
                     ArrayList<Button> buttsNear = getSurroundingTiles(sqs,s25);
                     int i = (int) Math.floor(Math.random() * (buttsNear.size()));
@@ -1836,6 +1872,8 @@ public class Main extends Application {
     public void counter(){
         counter++;
     }
+
+
 
     public String getBoardState(GridPane sqs){
         String boardState = "";
