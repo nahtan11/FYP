@@ -1,13 +1,14 @@
-package src.output;
+package src.output.Board;
 
 public class puzzle {
+
     String code;
     String ParentCode;
     int [][] state;
     int level;
     int cost;
 
-    puzzle(String code,	String ParentCode, int [][] state, int level, int cost) {
+    public puzzle(String code,	String ParentCode, int [][] state, int level, int cost) {
         this.code = code;
         this.ParentCode = ParentCode;
 
@@ -21,6 +22,23 @@ public class puzzle {
         this.cost = cost;
     }
 
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setParentCode(String parentcode) {
+        this.ParentCode = parentcode;
+    }
+
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
 
     public String getCode() {
         return this.code;

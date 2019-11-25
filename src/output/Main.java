@@ -5,9 +5,11 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -17,9 +19,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import src.output.Board.puzzle;
+import src.output.algorithms.astar;
 
+import java.io.IOException;
 import java.util.*;
 
+/**
+ * src.output.Main
+ */
 
 public class Main extends Application {
 
@@ -38,326 +46,14 @@ public class Main extends Application {
     static Map<String, puzzle> states  = new HashMap<String, puzzle> ();
 
 
-    public void  moveTile(Button button, Button blank, GridPane sqs){
-        int tmpR = GridPane.getRowIndex(button);
-        int tmpC = GridPane.getColumnIndex(button);
-        sqs.getChildren().remove(button);
-        sqs.add(button, GridPane.getColumnIndex(blank), GridPane.getRowIndex(blank));
-        sqs.getChildren().remove(blank);
-        sqs.add(blank, tmpC, tmpR);
-    }
-
-    public Boolean proximityCheck(Button butt, Button emptyButt){
-        int emptyC = GridPane.getColumnIndex(emptyButt);
-        int emptyR = GridPane.getRowIndex(emptyButt);
-        String emptyPos = emptyC + "" + emptyR;
-
-        int tmpC = GridPane.getColumnIndex(butt);
-        int tmpR = GridPane.getRowIndex(butt);
-        String buttPos = tmpC + "" + tmpR;
-
-        if((emptyPos.equals("00")) && (buttPos.equals("10") || buttPos.equals("01"))){
-            return true;
-        }
-        if((emptyPos.equals("10")) && (buttPos.equals("00") || buttPos.equals("11") || buttPos.equals("20"))){
-            return true;
-        }
-        if((emptyPos.equals("20")) && (buttPos.equals("10") || buttPos.equals("21")|| buttPos.equals("30"))){
-            return true;
-        }
-        if((emptyPos.equals("30")) && (buttPos.equals("20") || buttPos.equals("31")|| buttPos.equals("40"))){
-            return true;
-        }
-        if((emptyPos.equals("40")) && (buttPos.equals("30") || buttPos.equals("41"))){
-            return true;
-        }
-        if((emptyPos.equals("01")) && (buttPos.equals("00") || buttPos.equals("11") || buttPos.equals("02"))){
-            return true;
-        }
-        if((emptyPos.equals("11")) && (buttPos.equals("01") || buttPos.equals("10") || buttPos.equals("21") || buttPos.equals("12"))){
-            return true;
-        }
-        if((emptyPos.equals("21")) && (buttPos.equals("11") || buttPos.equals("20") || buttPos.equals("22")|| buttPos.equals("31"))){
-            return true;
-        }
-        if((emptyPos.equals("31")) && (buttPos.equals("21") || buttPos.equals("32")|| buttPos.equals("41")|| buttPos.equals("30"))){
-            return true;
-        }
-        if((emptyPos.equals("41")) && (buttPos.equals("31") || buttPos.equals("42")|| buttPos.equals("40"))){
-            return true;
-        }
-        if((emptyPos.equals("02")) && (buttPos.equals("01") || buttPos.equals("12")|| buttPos.equals("03"))){
-            return true;
-        }
-        if((emptyPos.equals("12")) && (buttPos.equals("02") || buttPos.equals("11") || buttPos.equals("22")|| buttPos.equals("13"))){
-            return true;
-        }
-        if((emptyPos.equals("22")) && (buttPos.equals("12") || buttPos.equals("21")|| buttPos.equals("23")|| buttPos.equals("32"))){
-            return true;
-        }
-        if((emptyPos.equals("32")) && (buttPos.equals("22") || buttPos.equals("33")|| buttPos.equals("42")|| buttPos.equals("31"))){
-            return true;
-        }
-        if((emptyPos.equals("42")) && (buttPos.equals("32") || buttPos.equals("43")|| buttPos.equals("41"))){
-            return true;
-        }
-        if((emptyPos.equals("03")) && (buttPos.equals("02") || buttPos.equals("13")|| buttPos.equals("04"))){
-            return true;
-        }
-        if((emptyPos.equals("13")) && (buttPos.equals("03") || buttPos.equals("12") || buttPos.equals("23")|| buttPos.equals("14"))){
-            return true;
-        }
-        if((emptyPos.equals("23")) && (buttPos.equals("13") || buttPos.equals("22") || buttPos.equals("33")|| buttPos.equals("24"))){
-            return true;
-        }
-        if((emptyPos.equals("33")) && (buttPos.equals("23") || buttPos.equals("32")|| buttPos.equals("43")|| buttPos.equals("34"))){
-            return true;
-        }
-        if((emptyPos.equals("43")) && (buttPos.equals("33") || buttPos.equals("42")|| buttPos.equals("44"))){
-            return true;
-        }
-        if((emptyPos.equals("04")) && (buttPos.equals("03") || buttPos.equals("14"))){
-            return true;
-        }
-        if((emptyPos.equals("14")) && (buttPos.equals("04") || buttPos.equals("13") || buttPos.equals("24"))){
-            return true;
-        }
-        if((emptyPos.equals("24")) && (buttPos.equals("14") || buttPos.equals("23") || buttPos.equals("34"))){
-            return true;
-        }
-        if((emptyPos.equals("34")) && (buttPos.equals("24") || buttPos.equals("33")|| buttPos.equals("44"))){
-            return true;
-        }
-        if((emptyPos.equals("44")) && (buttPos.equals("34") || buttPos.equals("43"))){
-            return true;
-        }
-
-
-
-        return false;
-    }
-
-    public void counter(){
-        counter++;
-    }
-
-
-
-    public String getBoardState(GridPane sqs){
-        String boardState = "";
-
-        for (int i =0;i<5;i++){
-            for (int j = 0; j<5;j++){
-                Button tmp = (Button) getNodeFromGridPane(sqs,j,i);
-                boardState += tmp.getText() + ",";
-            }
-        }
-        boardState = boardState.substring(0, boardState.length()-1);
-
-        return boardState;
-    }
-
-    public boolean checkWin(ArrayList<Button> butts, ArrayList<ArrayList<Integer>> PositionsDup){
-
-        boolean temp = true;
-        int i = 0;
-        while (temp && i < butts.size()) {
-
-            int buttonC = GridPane.getColumnIndex(butts.get(i));
-            int buttonR = GridPane.getRowIndex(butts.get(i));
-
-            int posC = PositionsDup.get(i).get(0);
-            int posR = PositionsDup.get(i).get(1);
-
-            if (buttonC == posC && buttonR == posR) {
-                temp = true;
-                i++;
-            }else{
-                temp = false;
-            }
-        }
-
-        return temp;
-
-    }
-
-    public ArrayList<Button> getSurroundingTiles(GridPane sqs, Button s25){
-        ArrayList<Button> buttsNear = new ArrayList<Button>();
-
-        int tmpR = sqs.getRowIndex(s25);
-        int tmpC = sqs.getColumnIndex(s25);
-        String blank = tmpC + "" + tmpR;
-
-        if(blank.equals("00")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
-        }
-
-        if(blank.equals("10")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,0));
-        }
-
-        if(blank.equals("20")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,0));
-        }
-
-        if(blank.equals("30")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,0));
-        }
-
-        if(blank.equals("40")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,1));
-        }
-
-        if(blank.equals("01")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,2));
-        }
-
-        if(blank.equals("11")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
-        }
-
-        if(blank.equals("21")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,1));
-        }
-
-        if(blank.equals("31")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,1));
-        }
-
-        if(blank.equals("41")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,0));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,2));
-        }
-
-        if(blank.equals("02")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,3));
-
-        }
-
-        if(blank.equals("12")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
-        }
-
-        if(blank.equals("22")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,2));
-        }
-
-        if(blank.equals("32")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,2));
-        }
-
-        if(blank.equals("42")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,1));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,3));
-        }
-
-        if(blank.equals("03")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,4));
-
-        }
-
-        if(blank.equals("13")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,4));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,3));
-        }
-
-        if(blank.equals("23")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,4));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,3));
-        }
-
-        if(blank.equals("33")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,4));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,3));
-        }
-
-        if(blank.equals("43")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,2));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,4));
-        }
-
-        if(blank.equals("04")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,4));
-
-        }
-
-        if(blank.equals("14")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,0,4));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,4));
-        }
-
-        if(blank.equals("24")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,1,4));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,4));
-        }
-
-        if(blank.equals("34")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,2,4));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,4));
-        }
-
-        if(blank.equals("44")){
-            buttsNear.add((Button)getNodeFromGridPane(sqs,4,3));
-            buttsNear.add((Button)getNodeFromGridPane(sqs,3,4));
-        }
-
-        return buttsNear;
-    }
-
-    /*public void addPositions(int amount,ArrayList<ArrayList<Integer>> Pos,ArrayList<ArrayList<Integer>> PoDup){
-        for (int i=0;i<amount;i++){
-            Pos.add(new ArrayList<Integer>());
-        }
-    }*/
-
     @Override // Override the start method in the Application class
-    public void start(Stage primaryStage)
+    public void start(Stage primaryStage) throws IOException
     {
+        Parent root = FXMLLoader.load(getClass().getResource("..\\output\\UI\\UserInterface.fxml"));
+        primaryStage.setTitle("Hello World");
+        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.show();
+
         BorderPane back = new BorderPane();
 
         HBox hBox = new HBox();
@@ -374,18 +70,21 @@ public class Main extends Application {
         Random.setText("Random");
         Random.setMinWidth(20);
         Random.setMinHeight(20);
+        //back.setTop(Random);
         hBox.getChildren().add(Random);
 
         Button AStar = new Button();
         AStar.setText("AStar");
         AStar.setMinWidth(20);
         AStar.setMinHeight(20);
+        //back.setTop(AStar);
         hBox.getChildren().add(AStar);
 
         Button shuffle = new Button();
         shuffle.setText("Shuffle Board");
         shuffle.setMinWidth(20);
         shuffle.setMinHeight(20);
+        //back.setTop(AStar);
         hBox.getChildren().add(shuffle);
 
         // create a label
@@ -551,10 +250,14 @@ public class Main extends Application {
         Positions.add(sq25);
         PositionsDup.add(sq25);
 
+
         //Collections.shuffle(Positions);
+
         ArrayList<Button> butts = new ArrayList<Button>();
 
-        //Create Buttons
+
+
+
         Button s1 = new Button();
         s1.setText("1");
         sqs.add(s1, Positions.get(0).get(0), Positions.get(0).get(1));
@@ -779,7 +482,7 @@ public class Main extends Application {
 
                     String board = getBoardState(sqs);
                     boardState.add(board);
-                    //System.out.println(boardState);
+                    System.out.println(boardState);
 
                     Platform.runLater(()->buttsNear.get(i).fire());
                     //Thread.sleep(50);
@@ -817,14 +520,33 @@ public class Main extends Application {
                     }
                 }
 
+
+
+
+
+
+                int lev = 0;
+                //System.out.println("in1");
                 puzzle p = new puzzle(astar.converStateToString(puzzle),	"root", puzzle, 0, astar.fitness(desired, puzzle));
+                /*System.out.println(p.getCode());*/
                 winningMoves = astar.PuzzleSolvingObj(p, desired);
                 winningMoves.remove("root");
                 Collections.reverse(winningMoves);
+                //System.out.println(winningMoves.get(0));
+                //System.out.println("All States");
+                /*for (int j=0;j<winningMoves.size();j++){
+                    System.out.println(winningMoves.get(j));
+                }*/
                 System.out.println("-------------------------------------\n");
-                System.out.println("Begin.......");
+                //System.out.print(winningMoves.size());
 
+
+
+
+                //Collections.swap(boardLayout, boardLayout.indexOf(buttTemp), boardLayout.indexOf("-1"));
+                System.out.println("Begin.......");
                 for(int i=1;i<winningMoves.size();i++){
+                    //List<String> boardLayout = new ArrayList<String>(Arrays.asList(board.split(",")));
                     String currentBoard = winningMoves.get(i-1).toString();
                     List<String> currentBoardLayout = new ArrayList<String>(Arrays.asList(currentBoard.split("\\.")));
 
@@ -840,8 +562,111 @@ public class Main extends Application {
                             Platform.runLater(()->btMove.fire());
                         }
                     }
+                    //String winningMove = currentBoardLayout.get(nextBoardLayout.size()-1);
+
+                    /*for(int k=0;k<butts.size();k++){
+                        if(butts.get(k).getText().equals(winningMove)){
+                            Button btMove = butts.get(k);
+                            Platform.runLater(()->btMove.fire());
+                        }
+                    }*/
+
+
+
+                    //System.out.println(tempWM);
+                    //System.out.println();
+                    //int tempBlank = tempWM.indexOf("-1");
+                    //System.out.print(tempBlank);
+                    //System.out.println("Move: "+boardLayout.indexOf("-1"));
+                    /*for (int j=0;j<butts.size();j++){
+                        System.out.print(butts.get(j).getText() + ".");
+                    }*/
+                    /*System.out.println();
+                    System.out.println("Button: " + butts.get(boardLayout.indexOf("-1")).getText());
+                    for (int j=0;j<boardLayout.size();j++){
+                        System.out.print(boardLayout.get(j) + ".");
+                    }
+                    System.out.println();
+                    System.out.println("Index: " + boardLayout.indexOf("-1"));
+                    for (int j=0;j<butts.size();j++){
+                        System.out.print(butts.get(j).getText() + ".");
+                    }
+                    System.out.println();
+                    int boardInd = boardLayout.indexOf("-1");
+                    int boardIndTmp = boardLayout.indexOf("-1");*/
+                    //Platform.runLater(()->butts.get(boardLayout.indexOf("-1")).fire());
                     Thread.sleep(250);
                 }
+
+
+                /*
+
+                //Map<String,src.output.Board.BoardInfo> open = new HashMap<String,src.output.Board.BoardInfo>();
+                //Map<String,src.output.Board.BoardInfo> close = new HashMap<String,src.output.Board.BoardInfo>();
+                List<src.output.Board.BoardInfo> open = new ArrayList<src.output.Board.BoardInfo>();
+                List<src.output.Board.BoardInfo> close = new ArrayList<src.output.Board.BoardInfo>();
+
+                String initialBoard = getBoardState(sqs);
+                List<String> boardLayoutStart = new ArrayList<String>(Arrays.asList(initialBoard.split(",")));
+                //close.put(initialBoard,new src.output.Board.BoardInfo(getTilesOutOfPlace(boardLayoutStart)+level,null));
+                close.add(new src.output.Board.BoardInfo(initialBoard,getTilesOutOfPlace(boardLayoutStart)+level,null));
+
+                //Set<String> boardState = new LinkedHashSet<String>();
+
+                while(!(checkWin(butts,PositionsDup))){
+                    String board2 = getBoardState(sqs);
+
+                    List<Button> buttsNear = getSurroundingTiles(sqs,s25);
+
+
+
+                    level++;
+                    for(int i = 0;i<buttsNear.size();i++){
+                        List<String> boardLayout = new ArrayList<String>(Arrays.asList(board.split(",")));
+                        String buttTemp;
+                        buttTemp = buttsNear.get(i).getText();
+                        Collections.swap(boardLayout, boardLayout.indexOf(buttTemp), boardLayout.indexOf("-1"));
+
+                        String boardOrder = "";
+
+                        for (String s : boardLayout)
+                        {
+                            boardOrder += s + ",";
+                        }
+                        boardOrder = boardOrder.substring(0, boardOrder.length() - 1);
+
+                        int boardScore = getTilesOutOfPlace(boardLayout) + level;
+                        //open.put(boardOrder,new src.output.Board.BoardInfo(boardScore,buttsNear.get(i)));
+                        open.add(new src.output.Board.BoardInfo(boardOrder,boardScore,buttsNear.get(i)));
+
+                    }
+                    Collections.sort(open, new Comparator<src.output.Board.BoardInfo>(){
+                        public int compare(src.output.Board.BoardInfo o1, src.output.Board.BoardInfo o2) {
+                            return o1.getScore() - o2.getScore();
+                        }
+                    });
+                    close.add(open.get(0));
+
+                    int levelNext = level;
+                    //System.out.println(open.get(0).button.getText());
+                    boolean prox = proximityCheck(open.get(0).button,s25);
+                    if(prox){
+                        System.out.println("in 1");
+                        Platform.runLater(()->open.get(0).button.fire());
+                    }else{
+                        System.out.println("in 2");
+                        Platform.runLater(()->close.get(close.size()-levelNext).button.fire());
+                    }
+                    open.remove(0);
+
+
+
+
+                    if(!(checkWin(butts,PositionsDup))){
+                        Thread.sleep(50);
+                    }
+
+                }*/
                 return null;
             }
         };
@@ -859,7 +684,7 @@ public class Main extends Application {
                 } catch (Exception e) {
                 }
 
-                while(shuffleLevel!=75){
+                while(shuffleLevel!=50){
 
                     ArrayList<Button> buttsNear = getSurroundingTiles(sqs,s25);
                     int i = (int) Math.floor(Math.random() * (buttsNear.size()));
@@ -867,7 +692,7 @@ public class Main extends Application {
                     Platform.runLater(()->buttsNear.get(i).fire());
                     //Thread.sleep(50);
 
-                    Thread.sleep(15);
+                    Thread.sleep(50);
                     shuffleLevel++;
                 }
 
@@ -1447,21 +1272,349 @@ public class Main extends Application {
         });
 
 
-        Scene scene = new Scene(back, 750, 750);
-        primaryStage.setTitle("8-Puzzle"); // Set the stage title
-        primaryStage.setScene(scene); // Place the scene in the stage
-        primaryStage.show(); // Display the stage
-
-
 
     }
 
+    public void  moveTile(Button button, Button blank, GridPane sqs){
+        int tmpR = GridPane.getRowIndex(button);
+        int tmpC = GridPane.getColumnIndex(button);
+        sqs.getChildren().remove(button);
+        sqs.add(button, GridPane.getColumnIndex(blank), GridPane.getRowIndex(blank));
+        sqs.getChildren().remove(blank);
+        sqs.add(blank, tmpC, tmpR);
+    }
 
+    public int getTilesOutOfPlace(/*ArrayList<ArrayList<Integer>> PositionsDup, ArrayList<Button> butts*/List<String> boardState) {
+
+        int tOOP = 0;
+        List<String> winningState = new ArrayList<>(Arrays.asList("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","-1"));
+
+        for(int i =0;i< winningState.size();i++){
+            if(!(winningState.get(i).equals(boardState.get(i)))){
+                tOOP++;
+            }
+        }
+
+        /*for(int i = 0;i<PositionsDup.size();i++)
+        {
+            int buttonC = GridPane.getColumnIndex(butts.get(i));
+            int buttonR = GridPane.getRowIndex(butts.get(i));
+
+            int posC = PositionsDup.get(i).get(0);
+            int posR = PositionsDup.get(i).get(1);
+
+            if (!(buttonC == posC && buttonR == posR)){
+                tOOP++;
+            }
+
+        }*/
+        return tOOP;
+    }
+
+    public Boolean proximityCheck(Button butt, Button emptyButt){
+        int emptyC = GridPane.getColumnIndex(emptyButt);
+        int emptyR = GridPane.getRowIndex(emptyButt);
+        String emptyPos = emptyC + "" + emptyR;
+
+        int tmpC = GridPane.getColumnIndex(butt);
+        int tmpR = GridPane.getRowIndex(butt);
+        String buttPos = tmpC + "" + tmpR;
+
+        if((emptyPos.equals("00")) && (buttPos.equals("10") || buttPos.equals("01"))){
+            return true;
+        }
+        if((emptyPos.equals("10")) && (buttPos.equals("00") || buttPos.equals("11") || buttPos.equals("20"))){
+            return true;
+        }
+        if((emptyPos.equals("20")) && (buttPos.equals("10") || buttPos.equals("21")|| buttPos.equals("30"))){
+            return true;
+        }
+        if((emptyPos.equals("30")) && (buttPos.equals("20") || buttPos.equals("31")|| buttPos.equals("40"))){
+            return true;
+        }
+        if((emptyPos.equals("40")) && (buttPos.equals("30") || buttPos.equals("41"))){
+            return true;
+        }
+        if((emptyPos.equals("01")) && (buttPos.equals("00") || buttPos.equals("11") || buttPos.equals("02"))){
+            return true;
+        }
+        if((emptyPos.equals("11")) && (buttPos.equals("01") || buttPos.equals("10") || buttPos.equals("21") || buttPos.equals("12"))){
+            return true;
+        }
+        if((emptyPos.equals("21")) && (buttPos.equals("11") || buttPos.equals("20") || buttPos.equals("22")|| buttPos.equals("31"))){
+            return true;
+        }
+        if((emptyPos.equals("31")) && (buttPos.equals("21") || buttPos.equals("32")|| buttPos.equals("41")|| buttPos.equals("30"))){
+            return true;
+        }
+        if((emptyPos.equals("41")) && (buttPos.equals("31") || buttPos.equals("42")|| buttPos.equals("40"))){
+            return true;
+        }
+        if((emptyPos.equals("02")) && (buttPos.equals("01") || buttPos.equals("12")|| buttPos.equals("03"))){
+            return true;
+        }
+        if((emptyPos.equals("12")) && (buttPos.equals("02") || buttPos.equals("11") || buttPos.equals("22")|| buttPos.equals("13"))){
+            return true;
+        }
+        if((emptyPos.equals("22")) && (buttPos.equals("12") || buttPos.equals("21")|| buttPos.equals("23")|| buttPos.equals("32"))){
+            return true;
+        }
+        if((emptyPos.equals("32")) && (buttPos.equals("22") || buttPos.equals("33")|| buttPos.equals("42")|| buttPos.equals("31"))){
+            return true;
+        }
+        if((emptyPos.equals("42")) && (buttPos.equals("32") || buttPos.equals("43")|| buttPos.equals("41"))){
+            return true;
+        }
+        if((emptyPos.equals("03")) && (buttPos.equals("02") || buttPos.equals("13")|| buttPos.equals("04"))){
+            return true;
+        }
+        if((emptyPos.equals("13")) && (buttPos.equals("03") || buttPos.equals("12") || buttPos.equals("23")|| buttPos.equals("14"))){
+            return true;
+        }
+        if((emptyPos.equals("23")) && (buttPos.equals("13") || buttPos.equals("22") || buttPos.equals("33")|| buttPos.equals("24"))){
+            return true;
+        }
+        if((emptyPos.equals("33")) && (buttPos.equals("23") || buttPos.equals("32")|| buttPos.equals("43")|| buttPos.equals("34"))){
+            return true;
+        }
+        if((emptyPos.equals("43")) && (buttPos.equals("33") || buttPos.equals("42")|| buttPos.equals("44"))){
+            return true;
+        }
+        if((emptyPos.equals("04")) && (buttPos.equals("03") || buttPos.equals("14"))){
+            return true;
+        }
+        if((emptyPos.equals("14")) && (buttPos.equals("04") || buttPos.equals("13") || buttPos.equals("24"))){
+            return true;
+        }
+        if((emptyPos.equals("24")) && (buttPos.equals("14") || buttPos.equals("23") || buttPos.equals("34"))){
+            return true;
+        }
+        if((emptyPos.equals("34")) && (buttPos.equals("24") || buttPos.equals("33")|| buttPos.equals("44"))){
+            return true;
+        }
+        if((emptyPos.equals("44")) && (buttPos.equals("34") || buttPos.equals("43"))){
+            return true;
+        }
+
+
+
+        return false;
+    }
+
+    public void counter(){
+        counter++;
+    }
+
+
+
+    public String getBoardState(GridPane sqs){
+        String boardState = "";
+
+        for (int i =0;i<5;i++){
+            for (int j = 0; j<5;j++){
+                Button tmp = (Button) getNodeFromGridPane(sqs,j,i);
+                boardState += tmp.getText() + ",";
+            }
+        }
+        boardState = boardState.substring(0, boardState.length()-1);
+
+        return boardState;
+    }
+
+    public boolean checkWin(ArrayList<Button> butts, ArrayList<ArrayList<Integer>> PositionsDup){
+
+        boolean temp = true;
+        int i = 0;
+        while (temp && i < butts.size()) {
+
+            int buttonC = GridPane.getColumnIndex(butts.get(i));
+            int buttonR = GridPane.getRowIndex(butts.get(i));
+
+            int posC = PositionsDup.get(i).get(0);
+            int posR = PositionsDup.get(i).get(1);
+
+            if (buttonC == posC && buttonR == posR) {
+                temp = true;
+                i++;
+            }else{
+                temp = false;
+            }
+        }
+
+        return temp;
+
+    }
+
+    public ArrayList<Button> getSurroundingTiles(GridPane sqs, Button s25){
+        ArrayList<Button> buttsNear = new ArrayList<Button>();
+
+        int tmpR = sqs.getRowIndex(s25);
+        int tmpC = sqs.getColumnIndex(s25);
+        String blank = tmpC + "" + tmpR;
+
+        if(blank.equals("00")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
+        }
+
+        if(blank.equals("10")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,0));
+        }
+
+        if(blank.equals("20")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,0));
+        }
+
+        if(blank.equals("30")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,0));
+        }
+
+        if(blank.equals("40")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,1));
+        }
+
+        if(blank.equals("01")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,2));
+        }
+
+        if(blank.equals("11")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
+        }
+
+        if(blank.equals("21")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,1));
+        }
+
+        if(blank.equals("31")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,1));
+        }
+
+        if(blank.equals("41")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,0));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,2));
+        }
+
+        if(blank.equals("02")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,3));
+
+        }
+
+        if(blank.equals("12")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
+        }
+
+        if(blank.equals("22")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,2));
+        }
+
+        if(blank.equals("32")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,2));
+        }
+
+        if(blank.equals("42")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,1));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,3));
+        }
+
+        if(blank.equals("03")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,4));
+
+        }
+
+        if(blank.equals("13")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,4));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,3));
+        }
+
+        if(blank.equals("23")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,4));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,3));
+        }
+
+        if(blank.equals("33")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,4));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,3));
+        }
+
+        if(blank.equals("43")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,2));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,4));
+        }
+
+        if(blank.equals("04")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,4));
+
+        }
+
+        if(blank.equals("14")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,0,4));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,4));
+        }
+
+        if(blank.equals("24")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,1,4));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,4));
+        }
+
+        if(blank.equals("34")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,2,4));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,4));
+        }
+
+        if(blank.equals("44")){
+            buttsNear.add((Button)getNodeFromGridPane(sqs,4,3));
+            buttsNear.add((Button)getNodeFromGridPane(sqs,3,4));
+        }
+
+        return buttsNear;
+    }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
-
-
 

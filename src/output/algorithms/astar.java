@@ -1,10 +1,13 @@
-package src.output;
+package src.output.algorithms;
+
+import src.output.Board.puzzle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class astar {
+
     static Map<String, puzzle> metStates  = new HashMap<String, puzzle>();
     static Map<String, puzzle> openStates = new HashMap<String, puzzle> ();
 
@@ -77,36 +80,72 @@ public class astar {
         while(!stop) {
             itr++;
             System.out.println("Level: "+itr);
+            //int h = metStates.size();
+            //if(h % 150 ==0)
+            //System.out.println(h+" "+openStates.size()+" "+itr++);
+
             String code = bestToMoveOn(openStates);
+            System.out.println(code);
+            //System.out.println(openStates.get(code).getCost()+"\tcode");
+            //System.out.println(h+" "+openStates.size()+" "+openStates.get(code).getCost());
+
+            //System.out.println(code+"\tcode");
+            //PrintPuzzle(openStates.get(code).getState());
+            //System.out.println("++++++++++++++");
+
+
+
 
             int [][] n_puzzle1 = move(1, openStates.get(code).getState());
             int [][] n_puzzle2 = move(2, openStates.get(code).getState());
             int [][] n_puzzle3 = move(3, openStates.get(code).getState());
             int [][] n_puzzle4 = move(4, openStates.get(code).getState());
 
+            /*if(itr==1) {
+                //System.out.println(costInWhile1+"  1");
+                //PrintPuzzle(openStates.get(code).getState());
+                //PrintPuzzle(newState.getState());
+            }*/
+
             if(n_puzzle1.length >2) {
                 int costInWhile1 = fitness(desired, n_puzzle1);
 
+			/*if(itr==1) {
+				System.out.println(costInWhile1+"  1");
+				PrintPuzzle(n_puzzle1);
+			}*/
                 puzzle newP1 = new puzzle(converStateToString(n_puzzle1), code, n_puzzle1, openStates.get(code).getLevel()+1,  costInWhile1);
                 if(!metStates.containsKey(converStateToString(n_puzzle1))) {
                     openStates.put(converStateToString(n_puzzle1), newP1);
+                    //System.out.println("in2");
                     metStates.put(converStateToString(n_puzzle1), newP1);
 
                     if(fitness(desired, n_puzzle1) == 0) {
+                        //PrintPuzzle(desired);
+                        //PrintPuzzle(n_puzzle1);
+
                         winningMoves = tracBack(converStateToString(n_puzzle1));
                         break;
+
                     }
                 }
             }
 
             if(n_puzzle2.length >2) {
                 int costInWhile2 = fitness(desired, n_puzzle2);
+			/*if(itr==1) {
+				System.out.println(costInWhile2+"  2");
+				PrintPuzzle(n_puzzle2);
+			}*/
                 puzzle newP2 = new puzzle(converStateToString(n_puzzle2), code, n_puzzle2, openStates.get(code).getLevel()+1,  costInWhile2);
                 if(!metStates.containsKey(converStateToString(n_puzzle2))) {
                     openStates.put(converStateToString(n_puzzle2), newP2);
                     metStates.put(converStateToString(n_puzzle2), newP2);
 
                     if(fitness(desired, n_puzzle2) == 0) {
+                        //PrintPuzzle(desired);
+                        //PrintPuzzle(n_puzzle2);
+
                         winningMoves = tracBack(converStateToString(n_puzzle2));
                         break;
                     }
@@ -115,12 +154,19 @@ public class astar {
 
             if(n_puzzle3.length >2) {
                 int costInWhile3 = fitness(desired, n_puzzle3);
+			/*if(itr==1) {
+				System.out.println(costInWhile3+"  3");
+				PrintPuzzle(n_puzzle3);
+			}*/
                 puzzle newP3 = new puzzle(converStateToString(n_puzzle3), code, n_puzzle3, openStates.get(code).getLevel()+1,  costInWhile3);
                 if(!metStates.containsKey(converStateToString(n_puzzle3))) {
                     openStates.put(converStateToString(n_puzzle3), newP3);
                     metStates.put(converStateToString(n_puzzle3), newP3);
 
                     if(fitness(desired, n_puzzle3) == 0){
+                        //PrintPuzzle(desired);
+                        //PrintPuzzle(n_puzzle3);
+
                         winningMoves = tracBack(converStateToString(n_puzzle3));
                         break;
                     }
@@ -129,23 +175,35 @@ public class astar {
 
             if(n_puzzle4.length >2 ) {
                 int costInWhile4 = fitness(desired, n_puzzle4);
+			/*if(itr==1) {
+				System.out.println(costInWhile4+"  4");
+				PrintPuzzle(n_puzzle4);
+			}*/
                 puzzle newP4 = new puzzle(converStateToString(n_puzzle4), code, n_puzzle4, openStates.get(code).getLevel()+1,  costInWhile4);
                 if(!metStates.containsKey(converStateToString(n_puzzle4))) {
                     openStates.put(converStateToString(n_puzzle4), newP4);
                     metStates.put(converStateToString(n_puzzle4), newP4);
 
                     if(fitness(desired, n_puzzle4) == 0){
+                        //PrintPuzzle(desired);
+                        //PrintPuzzle(n_puzzle4);
                         stop=true;
                         winningMoves = tracBack(converStateToString(n_puzzle4));
                         break;
                     }
                 }
             }
-            System.out.println(code);
+
             openStates.remove(code);
 
         }
         return winningMoves;
+
+       /* metStates.entrySet().forEach(entry->{
+            System.out.println(entry.getKey()+ " " + entry.getValue());
+        });*/
+
+
     }
 
 
@@ -156,12 +214,18 @@ public class astar {
         winningMoves.add(code);
         winningMoves.add(father);
         boolean doUntil = false;
+        //String coder = metStates.get(code).getCode();
+        //String father = metStates.get(code).getParentCode();
+        //String grandfather = metStates.get(father).getParentCode();
+        //String grand2father = metStates.get(grandfather).getParentCode();
+        //String grand3father = metStates.get(grand2father).getParentCode();
         PrintPuzzle(metStates.get(code).getState());
 
         while(!father.equals("root")) {
             PrintPuzzle(metStates.get(father).getState());
             father = metStates.get(father).getParentCode();
             winningMoves.add(father);
+            //System.out.println(father);
         }
         for(int i=0;i<winningMoves.size();i++){
             System.out.println(winningMoves.get(i));
@@ -174,11 +238,15 @@ public class astar {
     public static String bestToMoveOn(Map<String, puzzle> openSt) {
 
         ArrayList <puzzle> q = new ArrayList <puzzle>();
+
+
+
         int cost = 2147480647;
         String code = "";
         for(puzzle p : openSt.values()) {
             if((p.getCost()+p.getLevel()) < cost ) {
                 cost = p.getCost()+p.getLevel();
+
             }
         }
 
@@ -226,6 +294,17 @@ public class astar {
         System.out.println();
     }
 
+
+    /*public static boolean hasChanged(int [][] puzzle1, int [][] puzzle2) {
+        for (int i=0;i<puzzle1.length;i++) {
+            for (int j=0;j<puzzle1.length;j++) {
+                if(puzzle1[i][j] != puzzle2[i][j]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }*/
 
     public static int [] X_location(int [][] puzzle) {
         for (int i=0;i<puzzle.length;i++) {
@@ -303,12 +382,28 @@ public class astar {
                         x2 = i;
                         y2 = j;
                     }
+                    //System.out.println(src.output.Board.puzzle[i][j]+"  "+desired[i][j]);
                 }
             }
 
+            //System.out.println(x1+" "+x2+" "+y1+" "+y2);
             cost += Math.abs(x1-x2)+Math.abs(y1-y2);
         }
         return cost;
     }
+
+    /*public static int fitnessless(int [][] desired, int [][] src.output.Board.puzzle) {
+        int cost = src.output.Board.puzzle.length*src.output.Board.puzzle.length;
+
+        for (int i=0;i<src.output.Board.puzzle.length;i++) {
+            for (int j=0;j<src.output.Board.puzzle.length;j++) {
+                if(desired[i][j] == src.output.Board.puzzle[i][j]) {
+                    cost--;
+                }
+            }
+        }
+
+        return cost;
+    }*/
 
 }

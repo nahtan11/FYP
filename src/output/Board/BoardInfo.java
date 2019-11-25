@@ -1,8 +1,8 @@
-package src.output;
+package src.output.Board;
 
 import javafx.scene.control.Button;
 
-public class BoardInfo {
+public class BoardInfo{
     String board;
     int score;
     Button button;
