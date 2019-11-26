@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,13 +14,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import src.output.Board.puzzle;
+import src.output.Controllers.UIController;
 import src.output.algorithms.astar;
 
 import java.io.IOException;
@@ -50,11 +51,11 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws IOException
     {
         Parent root = FXMLLoader.load(getClass().getResource("..\\output\\UI\\UserInterface.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setTitle("24-Puzzle AI");
+        primaryStage.setScene(new Scene(root, 1000, 600));
         primaryStage.show();
 
-        BorderPane back = new BorderPane();
+        /*BorderPane back = new BorderPane();
 
         HBox hBox = new HBox();
         back.setTop(hBox);
@@ -85,7 +86,7 @@ public class Main extends Application {
         shuffle.setMinWidth(20);
         shuffle.setMinHeight(20);
         //back.setTop(AStar);
-        hBox.getChildren().add(shuffle);
+        hBox.getChildren().add(shuffle);*/
 
         // create a label
         Label popupLabel = new Label("You Win!");
@@ -255,6 +256,21 @@ public class Main extends Application {
 
         ArrayList<Button> butts = new ArrayList<Button>();
 
+
+
+
+
+
+        Scene scene = primaryStage.getScene();
+
+        TextArea text_area = (TextArea ) scene.lookup("#output_area");
+        VBox gb_vbox = (VBox) scene.lookup("#gb_vbox");
+
+        GridPane sqs = new GridPane();
+        sqs.setHgap(5);
+        sqs.setVgap(5);
+        sqs.setPadding(new Insets(5));
+        gb_vbox.getChildren().add(sqs);
 
 
 
@@ -703,7 +719,7 @@ public class Main extends Application {
         };
 
 
-        Random.setOnAction(new EventHandler<ActionEvent>() {
+        /*Random.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 new Thread(random).start();
             }
@@ -717,15 +733,15 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
                 new Thread(shuffleBoard).start();
             }
-        });
+        });*/
 
-        s1.setOnAction(new EventHandler<ActionEvent>() {
+        /*s1.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 if(shuffling)
                 {
                     moveTile(s1,s25,sqs);
                 }
-                else if(proximityCheck(s1, s25)) {
+                else if(proximityCheck(sqs,s1, s25)) {
                     moveTile(s1,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -748,7 +764,7 @@ public class Main extends Application {
                 {
                     moveTile(s2,s25,sqs);
                 }
-                else if(proximityCheck(s2, s25)) {
+                else if(proximityCheck(sqs,s2, s25)) {
                     moveTile(s2,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -771,7 +787,7 @@ public class Main extends Application {
                 {
                     moveTile(s3,s25,sqs);
                 }
-                else if(proximityCheck(s3, s25)) {
+                else if(proximityCheck(sqs,s3, s25)) {
                     moveTile(s3,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -794,7 +810,7 @@ public class Main extends Application {
                 {
                     moveTile(s4,s25,sqs);
                 }
-                else if(proximityCheck(s4, s25)) {
+                else if(proximityCheck(sqs,s4, s25)) {
                     moveTile(s4,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -817,7 +833,7 @@ public class Main extends Application {
                 {
                     moveTile(s5,s25,sqs);
                 }
-                else if(proximityCheck(s5, s25)) {
+                else if(proximityCheck(sqs,s5, s25)) {
                     moveTile(s5,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -840,7 +856,7 @@ public class Main extends Application {
                 {
                     moveTile(s6,s25,sqs);
                 }
-                else if(proximityCheck(s6, s25)) {
+                else if(proximityCheck(sqs,s6, s25)) {
                     moveTile(s6,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -863,7 +879,7 @@ public class Main extends Application {
                 {
                     moveTile(s7,s25,sqs);
                 }
-                else if(proximityCheck(s7,s25)) {
+                else if(proximityCheck(sqs,s7,s25)) {
                     moveTile(s7,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -886,7 +902,7 @@ public class Main extends Application {
                 {
                     moveTile(s8,s25,sqs);
                 }
-                else if(proximityCheck(s8, s25)) {
+                else if(proximityCheck(sqs,s8, s25)) {
                     moveTile(s8,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -909,7 +925,7 @@ public class Main extends Application {
                 {
                     moveTile(s9,s25,sqs);
                 }
-                else if(proximityCheck(s9, s25)) {
+                else if(proximityCheck(sqs,s9, s25)) {
                     moveTile(s9,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -932,7 +948,7 @@ public class Main extends Application {
                 {
                     moveTile(s10,s25,sqs);
                 }
-                else if(proximityCheck(s10, s25)) {
+                else if(proximityCheck(sqs,s10, s25)) {
                     moveTile(s10,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -955,7 +971,7 @@ public class Main extends Application {
                 {
                     moveTile(s11,s25,sqs);
                 }
-                else if(proximityCheck(s11, s25)) {
+                else if(proximityCheck(sqs,s11, s25)) {
                     moveTile(s11,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -978,7 +994,7 @@ public class Main extends Application {
                 {
                     moveTile(s12,s25,sqs);
                 }
-                else if(proximityCheck(s12, s25)) {
+                else if(proximityCheck(sqs,s12, s25)) {
                     moveTile(s12,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1001,7 +1017,7 @@ public class Main extends Application {
                 {
                     moveTile(s13,s25,sqs);
                 }
-                else if(proximityCheck(s13, s25)) {
+                else if(proximityCheck(sqs,s13, s25)) {
                     moveTile(s13,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1024,7 +1040,7 @@ public class Main extends Application {
                 {
                     moveTile(s14,s25,sqs);
                 }
-                else if(proximityCheck(s14, s25)) {
+                else if(proximityCheck(sqs,s14, s25)) {
                     moveTile(s14,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1047,7 +1063,7 @@ public class Main extends Application {
                 {
                     moveTile(s15,s25,sqs);
                 }
-                else if(proximityCheck(s15, s25)) {
+                else if(proximityCheck(sqs,s15, s25)) {
                     moveTile(s15,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1070,7 +1086,7 @@ public class Main extends Application {
                 {
                     moveTile(s16,s25,sqs);
                 }
-                else if(proximityCheck(s16, s25)) {
+                else if(proximityCheck(sqs,s16, s25)) {
                     moveTile(s16,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1093,7 +1109,7 @@ public class Main extends Application {
                 {
                     moveTile(s17,s25,sqs);
                 }
-                else if(proximityCheck(s17, s25)) {
+                else if(proximityCheck(sqs,s17, s25)) {
                     moveTile(s17,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1116,7 +1132,7 @@ public class Main extends Application {
                 {
                     moveTile(s18,s25,sqs);
                 }
-                else if(proximityCheck(s18, s25)) {
+                else if(proximityCheck(sqs,s18, s25)) {
                     moveTile(s18,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1139,7 +1155,7 @@ public class Main extends Application {
                 {
                     moveTile(s19,s25,sqs);
                 }
-                else if(proximityCheck(s19, s25)) {
+                else if(proximityCheck(sqs,s19, s25)) {
                     moveTile(s19,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1154,16 +1170,17 @@ public class Main extends Application {
                     System.out.println("false");
                 }
             }
-        });
+        });*/
         s20.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
                 if(shuffling)
                 {
-                    moveTile(s20,s25,sqs);
+                    //moveTile(s20,s25,sqs);
                 }
-                else if(proximityCheck(s20, s25)) {
-                    moveTile(s20,s25,sqs);
+                //moveTile(s20,s25,sqs);
+                else if(proximityCheck(scene,s20, s25)) {
+                    //moveTile(s20,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1178,14 +1195,14 @@ public class Main extends Application {
                 }
             }
         });
-        s21.setOnAction(new EventHandler<ActionEvent>() {
+        /*s21.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
                 if(shuffling)
                 {
                     moveTile(s21,s25,sqs);
                 }
-                else if(proximityCheck(s21, s25)) {
+                else if(proximityCheck(sqs,s21, s25)) {
                     moveTile(s21,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1208,7 +1225,7 @@ public class Main extends Application {
                 {
                     moveTile(s22,s25,sqs);
                 }
-                else if(proximityCheck(s22, s25)) {
+                else if(proximityCheck(sqs,s22, s25)) {
                     moveTile(s22,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1231,7 +1248,7 @@ public class Main extends Application {
                 {
                     moveTile(s23,s25,sqs);
                 }
-                else if(proximityCheck(s23, s25)) {
+                else if(proximityCheck(sqs,s23, s25)) {
                     moveTile(s23,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1254,7 +1271,7 @@ public class Main extends Application {
                 {
                     moveTile(s24,s25,sqs);
                 }
-                else if(proximityCheck(s24, s25)) {
+                else if(proximityCheck(sqs,s24, s25)) {
                     moveTile(s24,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1269,7 +1286,7 @@ public class Main extends Application {
                     System.out.println("false");
                 }
             }
-        });
+        });*/
 
 
 
@@ -1311,7 +1328,7 @@ public class Main extends Application {
         return tOOP;
     }
 
-    public Boolean proximityCheck(Button butt, Button emptyButt){
+    public Boolean proximityCheck(Scene scene,Button butt, Button emptyButt){
         int emptyC = GridPane.getColumnIndex(emptyButt);
         int emptyR = GridPane.getRowIndex(emptyButt);
         String emptyPos = emptyC + "" + emptyR;
