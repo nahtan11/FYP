@@ -563,17 +563,11 @@ public class Main extends Application {
                 //System.out.println("in1");
                 puzzle p = new puzzle(astar.converStateToString(puzzle),	"root", puzzle, 0, astar.fitness(desired, puzzle));
                 /*System.out.println(p.getCode());*/
-                winningMoves = astar.PuzzleSolvingObj(text_area,p, desired);
+                winningMoves = astar.PuzzleSolvingObj(p, desired);
                 System.out.println(winningMoves.size());
                 winningMoves.remove("root");
                 Collections.reverse(winningMoves);
-                //System.out.println(winningMoves.get(0));
-                //System.out.println("All States");
-                /*for (int j=0;j<winningMoves.size();j++){
-                    System.out.println(winningMoves.get(j));
-                }*/
                 System.out.println("-------------------------------------\n");
-                //System.out.print(winningMoves.size());
 
 
 
@@ -594,7 +588,6 @@ public class Main extends Application {
                     for(int j=0;j<butts.size();j++){
                         if(butts.get(j).getText().equals(moveToMake)){
                             Button btMove = butts.get(j);
-                            System.out.println("hello");
                             Platform.runLater(()->btMove.fire());
                         }
                     }
@@ -633,6 +626,7 @@ public class Main extends Application {
                     //Platform.runLater(()->butts.get(boardLayout.indexOf("-1")).fire());
                     Thread.sleep(250);
                 }
+                System.out.println("End.......");
 
 
                 /*
