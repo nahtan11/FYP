@@ -1,7 +1,14 @@
 package src.output.algorithms;
 
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.TextArea;
+import org.w3c.dom.Text;
 import src.output.Board.puzzle;
 
+import java.awt.*;
+import javafx.scene.control.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,9 +20,10 @@ public class astar {
 
 
 
-    public static ArrayList<String> PuzzleSolvingObj(puzzle newState, int [][] desired) {
+    public static ArrayList<String> PuzzleSolvingObj(TextArea text_area, puzzle newState, int [][] desired)throws InterruptedException {
 
         metStates.put(newState.getCode(), newState);
+        text_area.appendText("Running....\n");
         System.out.print("Running....");
 
 
@@ -37,7 +45,7 @@ public class astar {
             openStates.put(p1.getCode(), p1);
             if(cost1 == 0) {
                 stop = true;
-                winningMoves = tracBack(converStateToString(new_puzzle1));
+                winningMoves = tracBack(text_area,converStateToString(new_puzzle1));
             }
         }
 
@@ -48,7 +56,7 @@ public class astar {
             openStates.put(p2.getCode(), p2);
             if(cost2 == 0) {
                 stop = true;
-                winningMoves = tracBack(converStateToString(new_puzzle2));
+                winningMoves = tracBack(text_area,converStateToString(new_puzzle2));
             }
         }
 
@@ -59,7 +67,7 @@ public class astar {
             openStates.put(p3.getCode(), p3);
             if(cost3 == 0) {
                 stop = true;
-                winningMoves = tracBack(converStateToString(new_puzzle3));
+                winningMoves = tracBack(text_area,converStateToString(new_puzzle3));
             }
         }
         if(new_puzzle4.length >2) {
@@ -69,7 +77,7 @@ public class astar {
             openStates.put(p4.getCode(), p4);
             if(cost4 == 0) {
                 stop = true;
-                winningMoves = tracBack(converStateToString(new_puzzle4));
+                winningMoves = tracBack(text_area,converStateToString(new_puzzle4));
 
             }
         }
@@ -79,12 +87,22 @@ public class astar {
         int itr = 0;
         while(!stop) {
             itr++;
+            int itrtmp = itr;
+            Platform.runLater(()->{
+                text_area.appendText("Level: "+itrtmp+"\n");
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
             System.out.println("Level: "+itr);
             //int h = metStates.size();
             //if(h % 150 ==0)
             //System.out.println(h+" "+openStates.size()+" "+itr++);
 
             String code = bestToMoveOn(openStates);
+            PrintPuzzle(text_area,metStates.get(code).getState());
             System.out.println(code);
             //System.out.println(openStates.get(code).getCost()+"\tcode");
             //System.out.println(h+" "+openStates.size()+" "+openStates.get(code).getCost());
@@ -124,7 +142,7 @@ public class astar {
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle1);
 
-                        winningMoves = tracBack(converStateToString(n_puzzle1));
+                        winningMoves = tracBack(text_area,converStateToString(n_puzzle1));
                         break;
 
                     }
@@ -146,7 +164,7 @@ public class astar {
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle2);
 
-                        winningMoves = tracBack(converStateToString(n_puzzle2));
+                        winningMoves = tracBack(text_area,converStateToString(n_puzzle2));
                         break;
                     }
                 }
@@ -167,7 +185,7 @@ public class astar {
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle3);
 
-                        winningMoves = tracBack(converStateToString(n_puzzle3));
+                        winningMoves = tracBack(text_area,converStateToString(n_puzzle3));
                         break;
                     }
                 }
@@ -188,7 +206,7 @@ public class astar {
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle4);
                         stop=true;
-                        winningMoves = tracBack(converStateToString(n_puzzle4));
+                        winningMoves = tracBack(text_area,converStateToString(n_puzzle4));
                         break;
                     }
                 }
@@ -197,6 +215,8 @@ public class astar {
             openStates.remove(code);
 
         }
+        //Thread.currentThread().interrupt();
+        System.out.println(winningMoves.get(0) + "moves");
         return winningMoves;
 
        /* metStates.entrySet().forEach(entry->{
@@ -207,29 +227,28 @@ public class astar {
     }
 
 
-    public static ArrayList<String> tracBack(String code) {
+    public static ArrayList<String> tracBack(TextArea text_area,String code)throws InterruptedException {
         System.out.println("Trace back ...");
         ArrayList<String> winningMoves = new ArrayList<>();
         String father = metStates.get(code).getParentCode();
         winningMoves.add(code);
         winningMoves.add(father);
-        boolean doUntil = false;
-        //String coder = metStates.get(code).getCode();
-        //String father = metStates.get(code).getParentCode();
-        //String grandfather = metStates.get(father).getParentCode();
-        //String grand2father = metStates.get(grandfather).getParentCode();
-        //String grand3father = metStates.get(grand2father).getParentCode();
-        PrintPuzzle(metStates.get(code).getState());
+        PrintPuzzle(text_area,metStates.get(code).getState());
 
+        text_area.appendText("Trace Back\n");
         while(!father.equals("root")) {
-            PrintPuzzle(metStates.get(father).getState());
+            PrintPuzzle(text_area,metStates.get(father).getState());
             father = metStates.get(father).getParentCode();
             winningMoves.add(father);
             //System.out.println(father);
         }
+        text_area.appendText("Winning Moves\n");
         for(int i=0;i<winningMoves.size();i++){
-            System.out.println(winningMoves.get(i));
+            PrintPuzzle(text_area,metStates.get(winningMoves.get(i)).getState());
+            //System.out.println(winningMoves.get(i));
         }
+        //System.out.println("hello");
+        Thread.sleep(2000);
         return winningMoves;
 
     }
@@ -281,17 +300,39 @@ public class astar {
     }
 
 
-    public static void PrintPuzzle(int [][] puzzle) {
+    public static void PrintPuzzle(TextArea text_area,int [][] puzzle)throws InterruptedException {
+        String puzzle_out="";
         for (int i=0;i<puzzle.length;i++) {
             for (int j=0;j<puzzle.length;j++) {
-                if(puzzle[i][j]!=-1)
-                    System.out.print(puzzle[i][j]+"\t");
-                else
+                if(puzzle[i][j]!=-1) {
+
+                    puzzle_out+=puzzle[i][j] + "\t";
+                    System.out.print(puzzle[i][j] + "\t");
+                }
+                else {
+                    puzzle_out+="X\t";
                     System.out.print("X\t");
+                }
             }
+            puzzle_out+="\n";
             System.out.println();
         }
-        System.out.println();
+        String puzz = puzzle_out;
+        Platform.runLater(()->{
+            text_area.textProperty().addListener(new ChangeListener<Object>() {
+                @Override
+                public void changed(ObservableValue<?> observable, Object oldValue,
+                                    Object newValue) {
+                    text_area.setScrollTop(Double.MAX_VALUE); //this will scroll to the bottom
+                    //use Double.MIN_VALUE to scroll to the top
+                }
+            });
+
+            text_area.appendText(puzz);
+            text_area.appendText("\n");
+        });
+        Thread.sleep(50);
+        //System.out.println();
     }
 
 

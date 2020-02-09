@@ -26,12 +26,16 @@ import src.output.algorithms.astar;
 import java.io.IOException;
 import java.util.*;
 
+import static java.lang.Boolean.TRUE;
+import static javafx.geometry.Pos.BASELINE_CENTER;
+
 /**
  * src.output.Main
  */
 
 public class Main extends Application {
 
+    public TextArea text_area = new TextArea();
     private int counter = 0;
     private Label label = new Label("Moves: 0");
     private boolean shuffling = false;
@@ -52,47 +56,33 @@ public class Main extends Application {
     {
         Parent root = FXMLLoader.load(getClass().getResource("..\\output\\UI\\UserInterface.fxml"));
         primaryStage.setTitle("24-Puzzle AI");
-        primaryStage.setScene(new Scene(root, 1000, 600));
-        primaryStage.show();
 
-        /*BorderPane back = new BorderPane();
-
-        HBox hBox = new HBox();
-        back.setTop(hBox);
-
-        GridPane sqs = new GridPane();
-        back.setCenter(sqs);
-        back.setRight(label);
-        sqs.setHgap(5);
-        sqs.setVgap(5);
-        sqs.setPadding(new Insets(5));
 
         Button Random = new Button();
         Random.setText("Random");
         Random.setMinWidth(20);
         Random.setMinHeight(20);
         //back.setTop(Random);
-        hBox.getChildren().add(Random);
+
 
         Button AStar = new Button();
         AStar.setText("AStar");
         AStar.setMinWidth(20);
         AStar.setMinHeight(20);
         //back.setTop(AStar);
-        hBox.getChildren().add(AStar);
+
 
         Button shuffle = new Button();
         shuffle.setText("Shuffle Board");
         shuffle.setMinWidth(20);
         shuffle.setMinHeight(20);
         //back.setTop(AStar);
-        hBox.getChildren().add(shuffle);*/
 
         // create a label
         Label popupLabel = new Label("You Win!");
         popupLabel.setMinWidth(200);
         popupLabel.setMinHeight(200);
-        popupLabel.setAlignment(Pos.BASELINE_CENTER);
+        popupLabel.setAlignment(BASELINE_CENTER);
         popupLabel.setStyle(" -fx-background-color: white;");
 
         // create a popup
@@ -256,21 +246,49 @@ public class Main extends Application {
 
         ArrayList<Button> butts = new ArrayList<Button>();
 
+        Pane backpane = new Pane();
+        backpane.setStyle("-fx-background-color: grey;");
+        backpane.prefHeight(600);
+        backpane.prefWidth(1000);
+
+        HBox back = new HBox();
+        back.prefHeight(600);
+        back.prefWidth(1000);
 
 
+        text_area.setMinSize(500.0,525.0);
+        text_area.setPadding(new Insets(5, 5, 0, 5));
 
+        VBox vbox1 = new VBox();
+        vbox1.prefHeight(600);
+        vbox1.prefWidth(500);
+        vbox1.setStyle("-fx-background-color: grey;");
 
+        VBox vbox2 = new VBox();
+        vbox2.prefHeight(600);
+        vbox2.prefWidth(500);
+        vbox2.setStyle("-fx-background-color: grey;");
+        vbox2.getChildren().addAll(text_area);
 
-        Scene scene = primaryStage.getScene();
-
-        TextArea text_area = (TextArea ) scene.lookup("#output_area");
-        VBox gb_vbox = (VBox) scene.lookup("#gb_vbox");
+        backpane.getChildren().addAll(back);
+        back.getChildren().addAll(vbox1,vbox2);
 
         GridPane sqs = new GridPane();
         sqs.setHgap(5);
         sqs.setVgap(5);
         sqs.setPadding(new Insets(5));
-        gb_vbox.getChildren().add(sqs);
+
+        HBox hbox = new HBox();
+        hbox.setAlignment(BASELINE_CENTER);
+        hbox.prefHeight(100);
+        hbox.prefWidth(200);
+        hbox.getChildren().addAll(Random,AStar,shuffle);
+
+        vbox1.getChildren().addAll(sqs,hbox);
+
+        primaryStage.setScene(new Scene(backpane, 1000, 600));
+        primaryStage.show();
+
 
 
 
@@ -279,7 +297,7 @@ public class Main extends Application {
         sqs.add(s1, Positions.get(0).get(0), Positions.get(0).get(1));
         s1.setMinWidth(100);
         s1.setMinHeight(100);
-        s1.setStyle("-fx-background-color: MediumSeaGreen");
+        s1.setStyle("-fx-background-color: Turquoise");
         butts.add(s1);
 
         Button s2 = new Button();
@@ -287,7 +305,7 @@ public class Main extends Application {
         s2.setMinWidth(100);
         s2.setMinHeight(100);
         sqs.add(s2, Positions.get(1).get(0), Positions.get(1).get(1));
-        s2.setStyle("-fx-background-color: MediumSeaGreen");
+        s2.setStyle("-fx-background-color: Turquoise");
         butts.add(s2);
 
         Button s3 = new Button();
@@ -295,7 +313,7 @@ public class Main extends Application {
         s3.setMinWidth(100);
         s3.setMinHeight(100);
         sqs.add(s3, Positions.get(2).get(0), Positions.get(2).get(1));
-        s3.setStyle("-fx-background-color: MediumSeaGreen");
+        s3.setStyle("-fx-background-color: Turquoise");
         butts.add(s3);
 
         Button s4 = new Button();
@@ -303,7 +321,7 @@ public class Main extends Application {
         s4.setMinWidth(100);
         s4.setMinHeight(100);
         sqs.add(s4, Positions.get(3).get(0), Positions.get(3).get(1));
-        s4.setStyle("-fx-background-color: MediumSeaGreen");
+        s4.setStyle("-fx-background-color: Turquoise");
         butts.add(s4);
 
         Button s5 = new Button();
@@ -311,7 +329,7 @@ public class Main extends Application {
         s5.setMinWidth(100);
         s5.setMinHeight(100);
         sqs.add(s5, Positions.get(4).get(0), Positions.get(4).get(1));
-        s5.setStyle("-fx-background-color: MediumSeaGreen");
+        s5.setStyle("-fx-background-color: Turquoise");
         butts.add(s5);
 
         Button s6 = new Button();
@@ -319,7 +337,7 @@ public class Main extends Application {
         s6.setMinWidth(100);
         s6.setMinHeight(100);
         sqs.add(s6, Positions.get(5).get(0), Positions.get(5).get(1));
-        s6.setStyle("-fx-background-color: MediumSeaGreen");
+        s6.setStyle("-fx-background-color: Turquoise");
         butts.add(s6);
 
         Button s7 = new Button();
@@ -327,7 +345,7 @@ public class Main extends Application {
         s7.setMinWidth(100);
         s7.setMinHeight(100);
         sqs.add(s7, Positions.get(6).get(0), Positions.get(6).get(1));
-        s7.setStyle("-fx-background-color: MediumSeaGreen");
+        s7.setStyle("-fx-background-color: Turquoise");
         butts.add(s7);
 
         Button s8 = new Button();
@@ -335,7 +353,7 @@ public class Main extends Application {
         s8.setMinWidth(100);
         s8.setMinHeight(100);
         sqs.add(s8, Positions.get(7).get(0), Positions.get(7).get(1));
-        s8.setStyle("-fx-background-color: MediumSeaGreen");
+        s8.setStyle("-fx-background-color: Turquoise");
         butts.add(s8);
 
         Button s9 = new Button();
@@ -343,7 +361,7 @@ public class Main extends Application {
         s9.setMinWidth(100);
         s9.setMinHeight(100);
         sqs.add(s9, Positions.get(8).get(0), Positions.get(8).get(1));
-        s9.setStyle("-fx-background-color: MediumSeaGreen");
+        s9.setStyle("-fx-background-color: Turquoise");
         butts.add(s9);
 
         Button s10 = new Button();
@@ -351,7 +369,7 @@ public class Main extends Application {
         s10.setMinWidth(100);
         s10.setMinHeight(100);
         sqs.add(s10, Positions.get(9).get(0), Positions.get(9).get(1));
-        s10.setStyle("-fx-background-color: MediumSeaGreen");
+        s10.setStyle("-fx-background-color: Turquoise");
         butts.add(s10);
 
         Button s11 = new Button();
@@ -359,7 +377,7 @@ public class Main extends Application {
         s11.setMinWidth(100);
         s11.setMinHeight(100);
         sqs.add(s11, Positions.get(10).get(0), Positions.get(10).get(1));
-        s11.setStyle("-fx-background-color: MediumSeaGreen");
+        s11.setStyle("-fx-background-color: Turquoise");
         butts.add(s11);
 
         Button s12 = new Button();
@@ -367,7 +385,7 @@ public class Main extends Application {
         s12.setMinWidth(100);
         s12.setMinHeight(100);
         sqs.add(s12, Positions.get(11).get(0), Positions.get(11).get(1));
-        s12.setStyle("-fx-background-color: MediumSeaGreen");
+        s12.setStyle("-fx-background-color: Turquoise");
         butts.add(s12);
 
         Button s13 = new Button();
@@ -375,7 +393,7 @@ public class Main extends Application {
         s13.setMinWidth(100);
         s13.setMinHeight(100);
         sqs.add(s13, Positions.get(12).get(0), Positions.get(12).get(1));
-        s13.setStyle("-fx-background-color: MediumSeaGreen");
+        s13.setStyle("-fx-background-color: Turquoise");
         butts.add(s13);
 
         Button s14 = new Button();
@@ -383,7 +401,7 @@ public class Main extends Application {
         s14.setMinWidth(100);
         s14.setMinHeight(100);
         sqs.add(s14, Positions.get(13).get(0), Positions.get(13).get(1));
-        s14.setStyle("-fx-background-color: MediumSeaGreen");
+        s14.setStyle("-fx-background-color: Turquoise");
         butts.add(s14);
 
         Button s15 = new Button();
@@ -391,7 +409,7 @@ public class Main extends Application {
         s15.setMinWidth(100);
         s15.setMinHeight(100);
         sqs.add(s15, Positions.get(14).get(0), Positions.get(14).get(1));
-        s15.setStyle("-fx-background-color: MediumSeaGreen");
+        s15.setStyle("-fx-background-color: Turquoise");
         butts.add(s15);
 
         Button s16 = new Button();
@@ -399,7 +417,7 @@ public class Main extends Application {
         s16.setMinWidth(100);
         s16.setMinHeight(100);
         sqs.add(s16, Positions.get(15).get(0), Positions.get(15).get(1));
-        s16.setStyle("-fx-background-color: MediumSeaGreen");
+        s16.setStyle("-fx-background-color: Turquoise");
         butts.add(s16);
 
         Button s17 = new Button();
@@ -407,7 +425,7 @@ public class Main extends Application {
         s17.setMinWidth(100);
         s17.setMinHeight(100);
         sqs.add(s17, Positions.get(16).get(0), Positions.get(16).get(1));
-        s17.setStyle("-fx-background-color: MediumSeaGreen");
+        s17.setStyle("-fx-background-color: Turquoise");
         butts.add(s17);
 
         Button s18 = new Button();
@@ -415,7 +433,7 @@ public class Main extends Application {
         s18.setMinWidth(100);
         s18.setMinHeight(100);
         sqs.add(s18, Positions.get(17).get(0), Positions.get(17).get(1));
-        s18.setStyle("-fx-background-color: MediumSeaGreen");
+        s18.setStyle("-fx-background-color: Turquoise");
         butts.add(s18);
 
         Button s19 = new Button();
@@ -423,7 +441,7 @@ public class Main extends Application {
         s19.setMinWidth(100);
         s19.setMinHeight(100);
         sqs.add(s19, Positions.get(18).get(0), Positions.get(18).get(1));
-        s19.setStyle("-fx-background-color: MediumSeaGreen");
+        s19.setStyle("-fx-background-color: Turquoise");
         butts.add(s19);
 
         Button s20 = new Button();
@@ -431,7 +449,7 @@ public class Main extends Application {
         s20.setMinWidth(100);
         s20.setMinHeight(100);
         sqs.add(s20, Positions.get(19).get(0), Positions.get(19).get(1));
-        s20.setStyle("-fx-background-color: MediumSeaGreen");
+        s20.setStyle("-fx-background-color: Turquoise");
         butts.add(s20);
 
         Button s21 = new Button();
@@ -439,7 +457,7 @@ public class Main extends Application {
         s21.setMinWidth(100);
         s21.setMinHeight(100);
         sqs.add(s21, Positions.get(20).get(0), Positions.get(20).get(1));
-        s21.setStyle("-fx-background-color: MediumSeaGreen");
+        s21.setStyle("-fx-background-color: Turquoise");
         butts.add(s21);
 
         Button s22 = new Button();
@@ -447,7 +465,7 @@ public class Main extends Application {
         s22.setMinWidth(100);
         s22.setMinHeight(100);
         sqs.add(s22, Positions.get(21).get(0), Positions.get(21).get(1));
-        s22.setStyle("-fx-background-color: MediumSeaGreen");
+        s22.setStyle("-fx-background-color: Turquoise");
         butts.add(s22);
 
         Button s23 = new Button();
@@ -455,7 +473,7 @@ public class Main extends Application {
         s23.setMinWidth(100);
         s23.setMinHeight(100);
         sqs.add(s23, Positions.get(22).get(0), Positions.get(22).get(1));
-        s23.setStyle("-fx-background-color: MediumSeaGreen");
+        s23.setStyle("-fx-background-color: Turquoise");
         butts.add(s23);
 
         Button s24 = new Button();
@@ -463,7 +481,7 @@ public class Main extends Application {
         s24.setMinWidth(100);
         s24.setMinHeight(100);
         sqs.add(s24, Positions.get(23).get(0), Positions.get(23).get(1));
-        s24.setStyle("-fx-background-color: MediumSeaGreen");
+        s24.setStyle("-fx-background-color: Turquoise");
         butts.add(s24);
 
         Button s25 = new Button();
@@ -545,7 +563,8 @@ public class Main extends Application {
                 //System.out.println("in1");
                 puzzle p = new puzzle(astar.converStateToString(puzzle),	"root", puzzle, 0, astar.fitness(desired, puzzle));
                 /*System.out.println(p.getCode());*/
-                winningMoves = astar.PuzzleSolvingObj(p, desired);
+                winningMoves = astar.PuzzleSolvingObj(text_area,p, desired);
+                System.out.println(winningMoves.size());
                 winningMoves.remove("root");
                 Collections.reverse(winningMoves);
                 //System.out.println(winningMoves.get(0));
@@ -570,11 +589,12 @@ public class Main extends Application {
                     List<String> nextBoardLayout = new ArrayList<String>(Arrays.asList(nextBoard.split("\\.")));
                     int indexOfMove = nextBoardLayout.indexOf("-1");
                     String moveToMake = currentBoardLayout.get(indexOfMove);
-                    System.out.println(currentBoard);
+                    //System.out.println(currentBoard);
 
                     for(int j=0;j<butts.size();j++){
                         if(butts.get(j).getText().equals(moveToMake)){
                             Button btMove = butts.get(j);
+                            System.out.println("hello");
                             Platform.runLater(()->btMove.fire());
                         }
                     }
@@ -719,7 +739,7 @@ public class Main extends Application {
         };
 
 
-        /*Random.setOnAction(new EventHandler<ActionEvent>() {
+        Random.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 new Thread(random).start();
             }
@@ -733,15 +753,15 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
                 new Thread(shuffleBoard).start();
             }
-        });*/
+        });
 
-        /*s1.setOnAction(new EventHandler<ActionEvent>() {
+        s1.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 if(shuffling)
                 {
                     moveTile(s1,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s1, s25)) {
+                else if(proximityCheck(s1, s25)) {
                     moveTile(s1,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -764,7 +784,7 @@ public class Main extends Application {
                 {
                     moveTile(s2,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s2, s25)) {
+                else if(proximityCheck(s2,s25)) {
                     moveTile(s2,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -787,7 +807,7 @@ public class Main extends Application {
                 {
                     moveTile(s3,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s3, s25)) {
+                else if(proximityCheck(s3, s25)) {
                     moveTile(s3,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -810,7 +830,7 @@ public class Main extends Application {
                 {
                     moveTile(s4,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s4, s25)) {
+                else if(proximityCheck(s4, s25)) {
                     moveTile(s4,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -833,7 +853,7 @@ public class Main extends Application {
                 {
                     moveTile(s5,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s5, s25)) {
+                else if(proximityCheck(s5, s25)) {
                     moveTile(s5,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -856,7 +876,7 @@ public class Main extends Application {
                 {
                     moveTile(s6,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s6, s25)) {
+                else if(proximityCheck(s6, s25)) {
                     moveTile(s6,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -879,7 +899,7 @@ public class Main extends Application {
                 {
                     moveTile(s7,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s7,s25)) {
+                else if(proximityCheck(s7,s25)) {
                     moveTile(s7,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -902,7 +922,7 @@ public class Main extends Application {
                 {
                     moveTile(s8,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s8, s25)) {
+                else if(proximityCheck(s8, s25)) {
                     moveTile(s8,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -925,7 +945,7 @@ public class Main extends Application {
                 {
                     moveTile(s9,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s9, s25)) {
+                else if(proximityCheck(s9, s25)) {
                     moveTile(s9,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -948,7 +968,7 @@ public class Main extends Application {
                 {
                     moveTile(s10,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s10, s25)) {
+                else if(proximityCheck(s10, s25)) {
                     moveTile(s10,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -971,7 +991,7 @@ public class Main extends Application {
                 {
                     moveTile(s11,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s11, s25)) {
+                else if(proximityCheck(s11,s25)) {
                     moveTile(s11,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -994,7 +1014,7 @@ public class Main extends Application {
                 {
                     moveTile(s12,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s12, s25)) {
+                else if(proximityCheck(s12, s25)) {
                     moveTile(s12,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1017,7 +1037,7 @@ public class Main extends Application {
                 {
                     moveTile(s13,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s13, s25)) {
+                else if(proximityCheck(s13, s25)) {
                     moveTile(s13,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1040,7 +1060,7 @@ public class Main extends Application {
                 {
                     moveTile(s14,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s14, s25)) {
+                else if(proximityCheck(s14, s25)) {
                     moveTile(s14,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1063,7 +1083,7 @@ public class Main extends Application {
                 {
                     moveTile(s15,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s15, s25)) {
+                else if(proximityCheck(s15, s25)) {
                     moveTile(s15,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1086,7 +1106,7 @@ public class Main extends Application {
                 {
                     moveTile(s16,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s16, s25)) {
+                else if(proximityCheck(s16,s25)) {
                     moveTile(s16,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1109,7 +1129,7 @@ public class Main extends Application {
                 {
                     moveTile(s17,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s17, s25)) {
+                else if(proximityCheck(s17, s25)) {
                     moveTile(s17,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1132,7 +1152,7 @@ public class Main extends Application {
                 {
                     moveTile(s18,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s18, s25)) {
+                else if(proximityCheck(s18, s25)) {
                     moveTile(s18,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1155,7 +1175,7 @@ public class Main extends Application {
                 {
                     moveTile(s19,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s19, s25)) {
+                else if(proximityCheck(s19, s25)) {
                     moveTile(s19,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1170,17 +1190,17 @@ public class Main extends Application {
                     System.out.println("false");
                 }
             }
-        });*/
+        });
         s20.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
                 if(shuffling)
                 {
-                    //moveTile(s20,s25,sqs);
+                    moveTile(s20,s25,sqs);
                 }
                 //moveTile(s20,s25,sqs);
-                else if(proximityCheck(scene,s20, s25)) {
-                    //moveTile(s20,s25,sqs);
+                else if(proximityCheck(s20, s25)) {
+                    moveTile(s20,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
                     if(checkWin(butts,PositionsDup)){
@@ -1195,14 +1215,14 @@ public class Main extends Application {
                 }
             }
         });
-        /*s21.setOnAction(new EventHandler<ActionEvent>() {
+        s21.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 
                 if(shuffling)
                 {
                     moveTile(s21,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s21, s25)) {
+                else if(proximityCheck(s21, s25)) {
                     moveTile(s21,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1225,7 +1245,7 @@ public class Main extends Application {
                 {
                     moveTile(s22,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s22, s25)) {
+                else if(proximityCheck(s22, s25)) {
                     moveTile(s22,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1248,7 +1268,7 @@ public class Main extends Application {
                 {
                     moveTile(s23,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s23, s25)) {
+                else if(proximityCheck(s23, s25)) {
                     moveTile(s23,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1271,7 +1291,7 @@ public class Main extends Application {
                 {
                     moveTile(s24,s25,sqs);
                 }
-                else if(proximityCheck(sqs,s24, s25)) {
+                else if(proximityCheck(s24, s25)) {
                     moveTile(s24,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
@@ -1286,7 +1306,7 @@ public class Main extends Application {
                     System.out.println("false");
                 }
             }
-        });*/
+        });
 
 
 
@@ -1328,7 +1348,7 @@ public class Main extends Application {
         return tOOP;
     }
 
-    public Boolean proximityCheck(Scene scene,Button butt, Button emptyButt){
+    public Boolean proximityCheck(Button butt, Button emptyButt){
         int emptyC = GridPane.getColumnIndex(emptyButt);
         int emptyR = GridPane.getRowIndex(emptyButt);
         String emptyPos = emptyC + "" + emptyR;
