@@ -11,12 +11,13 @@ import java.awt.*;
 import javafx.scene.control.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class astar {
 
-    static Map<String, puzzle> metStates  = new HashMap<String, puzzle>();
-    static Map<String, puzzle> openStates = new HashMap<String, puzzle> ();
+    static LinkedHashMap<String, puzzle> metStates  = new LinkedHashMap<String, puzzle>();
+    static LinkedHashMap<String, puzzle> openStates = new LinkedHashMap<String, puzzle> ();
 
 
 
@@ -212,8 +213,7 @@ public class astar {
             openStates.remove(code);
 
         }
-        //Thread.currentThread().interrupt();
-        System.out.println(winningMoves.get(0) + "moves");
+        //System.out.println(winningMoves.get(0) + "moves");
         return winningMoves;
 
        /* metStates.entrySet().forEach(entry->{
@@ -313,6 +313,7 @@ public class astar {
             puzzle_out+="\n";
             System.out.println();
         }
+        System.out.println();
         String puzz = puzzle_out;
         /*Platform.runLater(()->{
             text_area.textProperty().addListener(new ChangeListener<Object>() {
@@ -427,6 +428,10 @@ public class astar {
             cost += Math.abs(x1-x2)+Math.abs(y1-y2);
         }
         return cost;
+    }
+
+    public static LinkedHashMap<String, puzzle> getMetStates() {
+        return metStates;
     }
 
     /*public static int fitnessless(int [][] desired, int [][] src.output.Board.puzzle) {

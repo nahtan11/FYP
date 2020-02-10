@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Popup;
@@ -62,7 +63,11 @@ public class Main extends Application {
         Random.setText("Random");
         Random.setMinWidth(20);
         Random.setMinHeight(20);
-        //back.setTop(Random);
+
+        Button Reset = new Button();
+        Reset.setText("Reset");
+        Reset.setMinWidth(20);
+        Reset.setMinHeight(20);
 
 
         Button AStar = new Button();
@@ -76,10 +81,19 @@ public class Main extends Application {
         shuffle.setText("Shuffle Board");
         shuffle.setMinWidth(20);
         shuffle.setMinHeight(20);
-        //back.setTop(AStar);
+
+        TextField shuffleAmt = new TextField ();
+        shuffleAmt.setMinWidth(20);
+        shuffleAmt.setMinHeight(20);
+        shuffleAmt.setPromptText("Shuffle Amount. Eg 50");
+
+        Button Results = new Button();
+        Results.setText("Results");
+        Results.setMinWidth(20);
+        Results.setMinHeight(20);
 
         // create a label
-        Label popupLabel = new Label("You Win!");
+        Label popupLabel = new Label("Game Complete");
         popupLabel.setMinWidth(200);
         popupLabel.setMinHeight(200);
         popupLabel.setAlignment(BASELINE_CENTER);
@@ -87,6 +101,7 @@ public class Main extends Application {
 
         // create a popup
         Popup popup = new Popup();
+        popup.setAutoHide(true);
         popup.getContent().add(popupLabel);
 
         ArrayList<ArrayList<Integer>> Positions = new ArrayList<ArrayList<Integer>>();
@@ -257,7 +272,8 @@ public class Main extends Application {
 
 
         text_area.setMinSize(500.0,525.0);
-        text_area.setPadding(new Insets(5, 5, 0, 5));
+        text_area.setPadding(new Insets(0, 0, 0, 0));
+        text_area.setStyle("-fx-text-fill: white ;-fx-control-inner-background:#000000;") ;
 
         VBox vbox1 = new VBox();
         vbox1.prefHeight(600);
@@ -282,11 +298,11 @@ public class Main extends Application {
         hbox.setAlignment(BASELINE_CENTER);
         hbox.prefHeight(100);
         hbox.prefWidth(200);
-        hbox.getChildren().addAll(Random,AStar,shuffle);
+        hbox.getChildren().addAll(Reset,Random,AStar,shuffle,shuffleAmt,Results);
 
         vbox1.getChildren().addAll(sqs,hbox);
 
-        primaryStage.setScene(new Scene(backpane, 1000, 600));
+        primaryStage.setScene(new Scene(backpane, 1040, 600));
         primaryStage.show();
 
 
@@ -559,10 +575,7 @@ public class Main extends Application {
 
 
 
-                int lev = 0;
-                //System.out.println("in1");
                 puzzle p = new puzzle(astar.converStateToString(puzzle),	"root", puzzle, 0, astar.fitness(desired, puzzle));
-                /*System.out.println(p.getCode());*/
                 winningMoves = astar.PuzzleSolvingObj(p, desired);
                 System.out.println(winningMoves.size());
                 winningMoves.remove("root");
@@ -591,112 +604,9 @@ public class Main extends Application {
                             Platform.runLater(()->btMove.fire());
                         }
                     }
-                    //String winningMove = currentBoardLayout.get(nextBoardLayout.size()-1);
-
-                    /*for(int k=0;k<butts.size();k++){
-                        if(butts.get(k).getText().equals(winningMove)){
-                            Button btMove = butts.get(k);
-                            Platform.runLater(()->btMove.fire());
-                        }
-                    }*/
-
-
-
-                    //System.out.println(tempWM);
-                    //System.out.println();
-                    //int tempBlank = tempWM.indexOf("-1");
-                    //System.out.print(tempBlank);
-                    //System.out.println("Move: "+boardLayout.indexOf("-1"));
-                    /*for (int j=0;j<butts.size();j++){
-                        System.out.print(butts.get(j).getText() + ".");
-                    }*/
-                    /*System.out.println();
-                    System.out.println("Button: " + butts.get(boardLayout.indexOf("-1")).getText());
-                    for (int j=0;j<boardLayout.size();j++){
-                        System.out.print(boardLayout.get(j) + ".");
-                    }
-                    System.out.println();
-                    System.out.println("Index: " + boardLayout.indexOf("-1"));
-                    for (int j=0;j<butts.size();j++){
-                        System.out.print(butts.get(j).getText() + ".");
-                    }
-                    System.out.println();
-                    int boardInd = boardLayout.indexOf("-1");
-                    int boardIndTmp = boardLayout.indexOf("-1");*/
-                    //Platform.runLater(()->butts.get(boardLayout.indexOf("-1")).fire());
-                    Thread.sleep(250);
+                    Thread.sleep(400);
                 }
                 System.out.println("End.......");
-
-
-                /*
-
-                //Map<String,src.output.Board.BoardInfo> open = new HashMap<String,src.output.Board.BoardInfo>();
-                //Map<String,src.output.Board.BoardInfo> close = new HashMap<String,src.output.Board.BoardInfo>();
-                List<src.output.Board.BoardInfo> open = new ArrayList<src.output.Board.BoardInfo>();
-                List<src.output.Board.BoardInfo> close = new ArrayList<src.output.Board.BoardInfo>();
-
-                String initialBoard = getBoardState(sqs);
-                List<String> boardLayoutStart = new ArrayList<String>(Arrays.asList(initialBoard.split(",")));
-                //close.put(initialBoard,new src.output.Board.BoardInfo(getTilesOutOfPlace(boardLayoutStart)+level,null));
-                close.add(new src.output.Board.BoardInfo(initialBoard,getTilesOutOfPlace(boardLayoutStart)+level,null));
-
-                //Set<String> boardState = new LinkedHashSet<String>();
-
-                while(!(checkWin(butts,PositionsDup))){
-                    String board2 = getBoardState(sqs);
-
-                    List<Button> buttsNear = getSurroundingTiles(sqs,s25);
-
-
-
-                    level++;
-                    for(int i = 0;i<buttsNear.size();i++){
-                        List<String> boardLayout = new ArrayList<String>(Arrays.asList(board.split(",")));
-                        String buttTemp;
-                        buttTemp = buttsNear.get(i).getText();
-                        Collections.swap(boardLayout, boardLayout.indexOf(buttTemp), boardLayout.indexOf("-1"));
-
-                        String boardOrder = "";
-
-                        for (String s : boardLayout)
-                        {
-                            boardOrder += s + ",";
-                        }
-                        boardOrder = boardOrder.substring(0, boardOrder.length() - 1);
-
-                        int boardScore = getTilesOutOfPlace(boardLayout) + level;
-                        //open.put(boardOrder,new src.output.Board.BoardInfo(boardScore,buttsNear.get(i)));
-                        open.add(new src.output.Board.BoardInfo(boardOrder,boardScore,buttsNear.get(i)));
-
-                    }
-                    Collections.sort(open, new Comparator<src.output.Board.BoardInfo>(){
-                        public int compare(src.output.Board.BoardInfo o1, src.output.Board.BoardInfo o2) {
-                            return o1.getScore() - o2.getScore();
-                        }
-                    });
-                    close.add(open.get(0));
-
-                    int levelNext = level;
-                    //System.out.println(open.get(0).button.getText());
-                    boolean prox = proximityCheck(open.get(0).button,s25);
-                    if(prox){
-                        System.out.println("in 1");
-                        Platform.runLater(()->open.get(0).button.fire());
-                    }else{
-                        System.out.println("in 2");
-                        Platform.runLater(()->close.get(close.size()-levelNext).button.fire());
-                    }
-                    open.remove(0);
-
-
-
-
-                    if(!(checkWin(butts,PositionsDup))){
-                        Thread.sleep(50);
-                    }
-
-                }*/
                 return null;
             }
         };
@@ -707,6 +617,7 @@ public class Main extends Application {
 
                 Set<String> boardState = new LinkedHashSet<String>();
                 int shuffleLevel = 0;
+                int shuffleAmount = Integer.parseInt(shuffleAmt.getText());
                 shuffling =true;
                 // Add delay code from initial attempt
                 try {
@@ -714,7 +625,7 @@ public class Main extends Application {
                 } catch (Exception e) {
                 }
 
-                while(shuffleLevel!=50){
+                while(shuffleLevel!=shuffleAmount){
 
                     ArrayList<Button> buttsNear = getSurroundingTiles(sqs,s25);
                     int i = (int) Math.floor(Math.random() * (buttsNear.size()));
@@ -732,7 +643,54 @@ public class Main extends Application {
 
         };
 
+        Task<Void> results = new Task<Void>() {// Implement required call() method
+            @Override
+            protected Void call() throws Exception {
 
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                }
+
+
+                LinkedHashMap<String, puzzle> metStates = astar.getMetStates();
+                Iterator it = metStates.entrySet().iterator();
+                int i=0;
+                while (it.hasNext()) {
+
+                    Map.Entry pair = (Map.Entry)it.next();
+                    //System.out.println(pair.getKey() + " = " + pair.getValue());
+                    String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
+                    System.out.println(nextState);
+                    String text = text_area.getText();
+                    //text = text + "\n" + nextState;
+                    //String areaText = text;
+                    i++;
+                    int iterate = i;
+                    Platform.runLater(()->text_area.appendText("\nMove: "+iterate+"\n--------------------------------------------------------\n" + nextState));
+
+                    it.remove(); // avoids a ConcurrentModificationException
+                    //Thread.sleep(50);
+
+                    Thread.sleep(250);
+
+                }
+
+                return null;
+            }
+        };
+
+        Reset.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                primaryStage.hide();
+                text_area.clear();
+                try {
+                    start(new Stage());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
         Random.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 new Thread(random).start();
@@ -748,6 +706,14 @@ public class Main extends Application {
                 new Thread(shuffleBoard).start();
             }
         });
+        Results.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                new Thread(results).start();
+            }
+        });
+
+
+
 
         s1.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
@@ -1642,6 +1608,39 @@ public class Main extends Application {
         }
 
         return buttsNear;
+    }
+
+    public static String PrintPuzzle(int [][] puzzle){
+        String puzzle_out="";
+        for (int i=0;i<puzzle.length;i++) {
+            puzzle_out+="|\t";
+            for (int j=0;j<puzzle.length;j++) {
+                if(puzzle[i][j]!=-1) {
+
+                    puzzle_out+=puzzle[i][j] + "\t|\t";
+                    //System.out.print(puzzle[i][j] + "\t");
+                }
+                else {
+                    puzzle_out+="X\t|\t";
+                    //System.out.print("X\t");
+                }
+            }
+            puzzle_out+="\n--------------------------------------------------------\n\n";
+            //System.out.println();
+        }
+        //System.out.println();
+        return puzzle_out;
+
+    }
+
+    public static String convertStateToString(int [][] puzzle) {
+        String State = "";
+        for (int i=0;i<puzzle.length;i++) {
+            for (int j=0;j<puzzle.length;j++) {
+                State = State + puzzle[i][j]+".";
+            }
+        }
+        return State;
     }
 
     public static void main(String[] args) {
