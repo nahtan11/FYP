@@ -24,6 +24,10 @@ import src.output.Board.puzzle;
 import src.output.Controllers.UIController;
 import src.output.algorithms.astar;
 
+import javax.swing.*;
+
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.view.mxGraph;
 import java.io.IOException;
 import java.util.*;
 
@@ -58,6 +62,11 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("..\\output\\UI\\UserInterface.fxml"));
         primaryStage.setTitle("24-Puzzle AI");
 
+        JFrame treeFrame = new JFrame();
+        treeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        treeFrame.setSize(400, 320);
+        treeFrame.setVisible(true);
+        //treeStructure(treeFrame);
 
         Button Random = new Button();
         Random.setText("Random");
@@ -651,13 +660,16 @@ public class Main extends Application {
                     Thread.sleep(1000);
                 } catch (Exception e) {
                 }
-
+                mxGraph graph = new mxGraph();
+                Object parent = graph.getDefaultParent();
 
                 LinkedHashMap<String, puzzle> metStates = astar.getMetStates();
                 Iterator it = metStates.entrySet().iterator();
                 int i=0;
+                int x=0,y =0;
                 while (it.hasNext()) {
-
+                    x+=40;
+                    y+=40;
                     Map.Entry pair = (Map.Entry)it.next();
                     //System.out.println(pair.getKey() + " = " + pair.getValue());
                     String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
@@ -667,12 +679,30 @@ public class Main extends Application {
                     //String areaText = text;
                     i++;
                     int iterate = i;
-                    Platform.runLater(()->text_area.appendText("\nMove: "+iterate+"\n--------------------------------------------------------\n" + nextState));
-
+                    int x1=x;
+                    int y1=y;
+                    Platform.runLater(()->{
+                        text_area.appendText("\nMove: "+iterate+"\n--------------------------------------------------------\n" + nextState);
+                        graph.getModel().beginUpdate();
+                        try{
+                            Object v1 = graph.insertVertex(parent, null, nextState, x1, y1, 200,
+                                    200);
+                        }
+                        finally
+                        {
+                            graph.getModel().endUpdate();
+                        }
+                        treeFrame.invalidate();
+                        treeFrame.validate();
+                        treeFrame.repaint();
+                        mxGraphComponent graphComponent = new mxGraphComponent(graph);
+                        treeFrame.getContentPane().add(graphComponent);
+                    });
                     it.remove(); // avoids a ConcurrentModificationException
                     //Thread.sleep(50);
 
-                    Thread.sleep(250);
+                    Thread.sleep(500);
+
 
                 }
 
@@ -1641,6 +1671,52 @@ public class Main extends Application {
             }
         }
         return State;
+    }
+
+    private static final long serialVersionUID = -2707712944901661771L;
+    public void treeStructure(JFrame frame)
+    {
+        //super("Hello, World!");
+        LinkedHashMap<String, puzzle> metStates = astar.getMetStates();
+        System.out.println(metStates);
+        mxGraph graph = new mxGraph();
+        Object parent = graph.getDefaultParent();
+
+        graph.getModel().beginUpdate();
+        try
+        {
+            /*Object v1 = graph.insertVertex(parent, null, "Hello", 20, 20, 80,
+                    30);
+            Object v2 = graph.insertVertex(parent, null, "World!", 240, 150,
+                    80, 30);
+            graph.insertEdge(parent, null, "Edge", v1, v2);*/
+            Iterator it = metStates.entrySet().iterator();
+            int i=0;
+            int x = 20;
+            int y = 20;
+            while (it.hasNext()) {
+                x+=40;
+                y+=40;
+                Map.Entry pair = (Map.Entry)it.next();
+                System.out.println(i);
+                String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
+                Object v1 = graph.insertVertex(parent, null, nextState, x, y, 80,
+                        30);
+                i++;
+
+                it.remove(); // avoids a ConcurrentModificationException
+                //Thread.sleep(50);
+
+
+            }
+        }
+        finally
+        {
+            graph.getModel().endUpdate();
+        }
+
+        mxGraphComponent graphComponent = new mxGraphComponent(graph);
+        frame.getContentPane().add(graphComponent);
     }
 
     public static void main(String[] args) {
