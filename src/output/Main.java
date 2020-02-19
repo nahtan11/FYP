@@ -1643,19 +1643,23 @@ public class Main extends Application {
     public static String PrintPuzzle(int [][] puzzle){
         String puzzle_out="";
         for (int i=0;i<puzzle.length;i++) {
-            puzzle_out+="|\t";
+            //puzzle_out+="|\t";
+            puzzle_out+="\t";
             for (int j=0;j<puzzle.length;j++) {
                 if(puzzle[i][j]!=-1) {
 
-                    puzzle_out+=puzzle[i][j] + "\t|\t";
+                    //puzzle_out+=puzzle[i][j] + "\t|\t";
+                    puzzle_out+=puzzle[i][j] + "\t";
                     //System.out.print(puzzle[i][j] + "\t");
                 }
                 else {
-                    puzzle_out+="X\t|\t";
+                    //puzzle_out+="X\t|\t";
+                    puzzle_out+="X\t";
                     //System.out.print("X\t");
                 }
             }
-            puzzle_out+="\n--------------------------------------------------------\n\n";
+            //puzzle_out+="\n--------------------------------------------------------\n\n";
+            puzzle_out+="\n";
             //System.out.println();
         }
         //System.out.println();
