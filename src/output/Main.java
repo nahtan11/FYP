@@ -1644,17 +1644,17 @@ public class Main extends Application {
         String puzzle_out="";
         for (int i=0;i<puzzle.length;i++) {
             //puzzle_out+="|\t";
-            puzzle_out+="\t";
+            //puzzle_out+="\t";
             for (int j=0;j<puzzle.length;j++) {
                 if(puzzle[i][j]!=-1) {
 
                     //puzzle_out+=puzzle[i][j] + "\t|\t";
-                    puzzle_out+=puzzle[i][j] + "\t";
+                    puzzle_out+=puzzle[i][j]+"  ";
                     //System.out.print(puzzle[i][j] + "\t");
                 }
                 else {
                     //puzzle_out+="X\t|\t";
-                    puzzle_out+="X\t";
+                    puzzle_out+="X";
                     //System.out.print("X\t");
                 }
             }
