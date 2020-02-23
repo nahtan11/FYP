@@ -1,14 +1,14 @@
 package src.output;
 
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.view.mxGraph;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,22 +16,20 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import src.output.Board.puzzle;
-import src.output.Controllers.UIController;
 import src.output.algorithms.astar;
 
 import javax.swing.*;
-
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.view.mxGraph;
 import java.io.IOException;
 import java.util.*;
 
-import static java.lang.Boolean.TRUE;
 import static javafx.geometry.Pos.BASELINE_CENTER;
 
 /**
@@ -64,7 +62,7 @@ public class Main extends Application {
 
         JFrame treeFrame = new JFrame();
         treeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        treeFrame.setSize(400, 320);
+        treeFrame.setSize(1000, 1000);
         treeFrame.setVisible(true);
         //treeStructure(treeFrame);
 
@@ -673,6 +671,8 @@ public class Main extends Application {
                     Map.Entry pair = (Map.Entry)it.next();
                     //System.out.println(pair.getKey() + " = " + pair.getValue());
                     String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
+                    Label boardState = new Label();
+                    boardState.setText(nextState);
                     System.out.println(nextState);
                     String text = text_area.getText();
                     //text = text + "\n" + nextState;
@@ -685,8 +685,8 @@ public class Main extends Application {
                         text_area.appendText("\nMove: "+iterate+"\n--------------------------------------------------------\n" + nextState);
                         graph.getModel().beginUpdate();
                         try{
-                            Object v1 = graph.insertVertex(parent, null, nextState, x1, y1, 200,
-                                    200);
+                            Object v1 = graph.insertVertex(parent, null, boardState.getText(), x1, y1, 150,
+                                    150);
                         }
                         finally
                         {
@@ -1644,17 +1644,17 @@ public class Main extends Application {
         String puzzle_out="";
         for (int i=0;i<puzzle.length;i++) {
             //puzzle_out+="|\t";
-            //puzzle_out+="\t";
+            puzzle_out+=" ";
             for (int j=0;j<puzzle.length;j++) {
                 if(puzzle[i][j]!=-1) {
 
                     //puzzle_out+=puzzle[i][j] + "\t|\t";
-                    puzzle_out+=puzzle[i][j]+"  ";
+                    puzzle_out+=puzzle[i][j]+" ";
                     //System.out.print(puzzle[i][j] + "\t");
                 }
                 else {
                     //puzzle_out+="X\t|\t";
-                    puzzle_out+="X";
+                    puzzle_out+="X ";
                     //System.out.print("X\t");
                 }
             }
@@ -1722,6 +1722,9 @@ public class Main extends Application {
         mxGraphComponent graphComponent = new mxGraphComponent(graph);
         frame.getContentPane().add(graphComponent);
     }
+
+
+
 
     public static void main(String[] args) {
         launch(args);
