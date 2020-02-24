@@ -2,18 +2,12 @@ package src.Results;
 
 import com.fxgraph.cells.AbstractCell;
 import com.fxgraph.cells.CellGestures;
-import com.fxgraph.cells.RectangleCell;
-import com.fxgraph.cells.TriangleCell;
-import com.fxgraph.edges.CorneredEdge;
-import com.fxgraph.edges.DoubleCorneredEdge;
-import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
 import com.fxgraph.layout.AbegoTreeLayout;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,31 +17,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import org.abego.treelayout.Configuration;
 import org.abego.treelayout.Configuration.Location;
-import org.abego.treelayout.NodeExtentProvider;
-import org.abego.treelayout.TreeForTreeLayout;
-import org.abego.treelayout.internal.util.Contract;
-import org.abego.treelayout.internal.util.java.lang.string.StringUtil;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import org.abego.treelayout.Configuration.AlignmentInLevel;
-import org.abego.treelayout.Configuration.Location;
-import org.abego.treelayout.internal.util.Contract;
-import org.abego.treelayout.internal.util.java.lang.string.StringUtil;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
 
 public class MainApp extends Application {
 
@@ -81,12 +53,12 @@ public class MainApp extends Application {
         graph.beginUpdate();
 
         final ICell cellA = new RectangleLabelCell();
-        final ICell cellB = new RectangleCell();
-        final ICell cellC = new RectangleCell();
-        final ICell cellD = new TriangleCell();
-        final ICell cellE = new TriangleCell();
-        final ICell cellF = new RectangleCell();
-        final ICell cellG = new RectangleCell();
+        final ICell cellB = new RectangleLabelCell();
+        final ICell cellC = new RectangleLabelCell();
+        final ICell cellD = new RectangleLabelCell();
+        final ICell cellE = new RectangleLabelCell();
+        final ICell cellF = new RectangleLabelCell();
+        final ICell cellG = new RectangleLabelCell();
 
         model.addCell(cellA);
         model.addCell(cellB);
@@ -96,21 +68,28 @@ public class MainApp extends Application {
         model.addCell(cellF);
         model.addCell(cellG);
 
-        final Edge edgeAB = new Edge(cellA, cellB);
-        edgeAB.textProperty().set("Edges can have text too!");
-        model.addEdge(edgeAB);
-        final CorneredEdge edgeAC = new CorneredEdge(cellA, cellC, Orientation.HORIZONTAL);
-        edgeAC.textProperty().set("Edges can have corners too!");
-        model.addEdge(edgeAC);
-        model.addEdge(cellB, cellD);
-        final DoubleCorneredEdge edgeBE = new DoubleCorneredEdge(cellB, cellE, Orientation.HORIZONTAL);
-        edgeBE.textProperty().set("You can implement custom edges and nodes too!");
-        model.addEdge(edgeBE);
+        model.addEdge(cellA, cellB);
+        model.addEdge(cellA, cellC);
+        model.addEdge(cellA, cellD);
+        model.addEdge(cellB, cellE);
         model.addEdge(cellC, cellF);
-        model.addEdge(cellC, cellG);
+        model.addEdge(cellD, cellG);
+
+        //final Edge edgeAB = new Edge(cellA, cellB);
+        //edgeAB.textProperty().set("Edges can have text too!");
+        //model.addEdge(edgeAB);
+        //final CorneredEdge edgeAC = new CorneredEdge(cellA, cellC, Orientation.HORIZONTAL);
+        //edgeAC.textProperty().set("Edges can have corners too!");
+        //model.addEdge(edgeAC);
+        //model.addEdge(cellB, cellD);
+        //final DoubleCorneredEdge edgeBE = new DoubleCorneredEdge(cellB, cellE, Orientation.HORIZONTAL);
+        //edgeBE.textProperty().set("You can implement custom edges and nodes too!");
+        //model.addEdge(edgeBE);
+        //model.addEdge(cellC, cellF);
+        //model.addEdge(cellC, cellG);
 
         graph.endUpdate();
-        graph.layout(new AbegoTreeLayout(200, 200, Location.Top));
+        graph.layout(new AbegoTreeLayout(300, 300, Location.Bottom));
     }
 
     /*private void addSequenceDiagramComponents(SequenceDiagram seqDiagram) {
