@@ -1,4 +1,4 @@
-package src.Results;
+/*package src.Results;
 
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
@@ -44,4 +44,4 @@ public class Tutorial1 {
         graph.display();
     }
 }
-
+*/
