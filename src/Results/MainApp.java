@@ -20,6 +20,8 @@ import javafx.stage.Stage;
 import org.abego.treelayout.Configuration.Location;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainApp extends Application {
 
@@ -49,45 +51,56 @@ public class MainApp extends Application {
 
 
     private void addTreeComponents(Graph graph) {
+        List<String> input = Arrays.asList("1,2,3,X,4,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20", "1,2,X,3,4,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,9,4,6,7,8,X,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,X,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,X,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,X,9,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,X,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,X,14,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,X,19,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,X");
+        ArrayList<ICell> cells = new ArrayList<ICell>();
         final Model model = graph.getModel();
         graph.beginUpdate();
+        for(int i=0; i<input.size();i++)
+        {
 
-        final ICell cellA = new RectangleLabelCell();
-        final ICell cellB = new RectangleLabelCell();
-        final ICell cellC = new RectangleLabelCell();
-        final ICell cellD = new RectangleLabelCell();
-        final ICell cellE = new RectangleLabelCell();
-        final ICell cellF = new RectangleLabelCell();
-        final ICell cellG = new RectangleLabelCell();
 
-        model.addCell(cellA);
-        model.addCell(cellB);
-        model.addCell(cellC);
-        model.addCell(cellD);
-        model.addCell(cellE);
-        model.addCell(cellF);
-        model.addCell(cellG);
+            ICell cell = new RectangleLabelCell(input.get(i));
+            /*final ICell cellB = new RectangleLabelCell();
+            final ICell cellC = new RectangleLabelCell();
+            final ICell cellD = new RectangleLabelCell();
+            final ICell cellE = new RectangleLabelCell();
+            final ICell cellF = new RectangleLabelCell();
+            final ICell cellG = new RectangleLabelCell();*/
 
-        model.addEdge(cellA, cellB);
-        model.addEdge(cellA, cellC);
-        model.addEdge(cellA, cellD);
-        model.addEdge(cellB, cellE);
-        model.addEdge(cellC, cellF);
-        model.addEdge(cellD, cellG);
+            model.addCell(cell);
+            cells.add(cell);
+            if(i>0){
+                model.addEdge(cells.get(i),cells.get(i-1));
+            }
+            /*model.addCell(cellB);
+            model.addCell(cellC);
+            model.addCell(cellD);
+            model.addCell(cellE);
+            model.addCell(cellF);
+            model.addCell(cellG);
 
-        //final Edge edgeAB = new Edge(cellA, cellB);
-        //edgeAB.textProperty().set("Edges can have text too!");
-        //model.addEdge(edgeAB);
-        //final CorneredEdge edgeAC = new CorneredEdge(cellA, cellC, Orientation.HORIZONTAL);
-        //edgeAC.textProperty().set("Edges can have corners too!");
-        //model.addEdge(edgeAC);
-        //model.addEdge(cellB, cellD);
-        //final DoubleCorneredEdge edgeBE = new DoubleCorneredEdge(cellB, cellE, Orientation.HORIZONTAL);
-        //edgeBE.textProperty().set("You can implement custom edges and nodes too!");
-        //model.addEdge(edgeBE);
-        //model.addEdge(cellC, cellF);
-        //model.addEdge(cellC, cellG);
+            model.addEdge(cellA, cellB);
+            model.addEdge(cellA, cellC);
+            model.addEdge(cellA, cellD);
+            model.addEdge(cellB, cellE);
+            model.addEdge(cellC, cellF);
+            model.addEdge(cellD, cellG);*/
 
+            //final Edge edgeAB = new Edge(cellA, cellB);
+            //edgeAB.textProperty().set("Edges can have text too!");
+            //model.addEdge(edgeAB);
+            //final CorneredEdge edgeAC = new CorneredEdge(cellA, cellC, Orientation.HORIZONTAL);
+            //edgeAC.textProperty().set("Edges can have corners too!");
+            //model.addEdge(edgeAC);
+            //model.addEdge(cellB, cellD);
+            //final DoubleCorneredEdge edgeBE = new DoubleCorneredEdge(cellB, cellE, Orientation.HORIZONTAL);
+            //edgeBE.textProperty().set("You can implement custom edges and nodes too!");
+            //model.addEdge(edgeBE);
+            //model.addEdge(cellC, cellF);
+            //model.addEdge(cellC, cellG);
+
+
+        }
         graph.endUpdate();
         graph.layout(new AbegoTreeLayout(300, 300, Location.Bottom));
     }
@@ -112,7 +125,7 @@ public class MainApp extends Application {
 }
 
 class RectangleLabelCell extends AbstractCell {
-    public RectangleLabelCell() {
+    public RectangleLabelCell(String board) {
     }
 
     public Region getGraphic(Graph graph) {
