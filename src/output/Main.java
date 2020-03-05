@@ -13,10 +13,8 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -43,6 +41,8 @@ public class Main extends Application {
     private int counter = 0;
     private Label label = new Label("Moves: 0");
     private boolean shuffling = false;
+    private int nodeIt =0;
+
 
     private Node getNodeFromGridPane(GridPane pane, int col, int row) {
         for (Node node : pane.getChildren()) {
@@ -52,14 +52,33 @@ public class Main extends Application {
         }
         return null;
     }
-    static Map<String, puzzle> states  = new HashMap<String, puzzle> ();
+   // static Map<String, puzzle> states  = new HashMap<String, puzzle> ();
 
 
     @Override // Override the start method in the Application class
     public void start(Stage primaryStage) throws IOException
     {
-        Parent root = FXMLLoader.load(getClass().getResource("..\\output\\UI\\UserInterface.fxml"));
+        //Parent root = FXMLLoader.load(getClass().getResource("..\\output\\UI\\UserInterface.fxml"));
         primaryStage.setTitle("24-Puzzle AI");
+        ArrayList<ICell> cells = new ArrayList<ICell>();
+        ArrayList<String> allStates = new ArrayList<String>();
+
+        final SplitPane root = new SplitPane();
+
+        Graph tree = new Graph();
+        //addTreeComponents(tree);
+        root.getItems().add(tree.getCanvas());
+
+        Stage secondaryStage = new Stage();
+        final Scene scene = new Scene(root, 1024, 768);
+        scene.getStylesheets().add(getClass().getResource("/application.css").toExternalForm());
+
+
+
+
+
+
+
 
         //JFrame treeFrame = new JFrame();
         //treeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,6 +118,11 @@ public class Main extends Application {
         Results.setText("Results");
         Results.setMinWidth(20);
         Results.setMinHeight(20);
+
+        Button advanceGraph = new Button();
+        advanceGraph.setText("Next Node");
+        advanceGraph.setMinWidth(20);
+        advanceGraph.setMinHeight(20);
 
         // create a label
         Label popupLabel = new Label("Game Complete");
@@ -292,7 +316,7 @@ public class Main extends Application {
         vbox2.prefHeight(600);
         vbox2.prefWidth(500);
         vbox2.setStyle("-fx-background-color: grey;");
-        vbox2.getChildren().addAll(text_area);
+        vbox2.getChildren().addAll(text_area,advanceGraph);
 
         backpane.getChildren().addAll(back);
         back.getChildren().addAll(vbox1,vbox2);
@@ -651,24 +675,41 @@ public class Main extends Application {
 
         };
 
-        Task<Void> results = new Task<Void>() {// Implement required call() method
+        /*Task<Void> results = new Task<Void>() {// Implement required call() method
             @Override
             protected Void call() throws Exception {
-                Stage secondaryStage = new Stage();
-                final SplitPane root = new SplitPane();
-                final Scene scene2 = new Scene(root, 1024, 768);
-                scene2.getStylesheets().add(getClass().getResource("/application.css").toExternalForm());
-                secondaryStage.setScene(scene2);
-                secondaryStage.show();
-
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e) {
                 }
+                List<String> input = Arrays.asList("1,2,3,X,4,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20", "1,2,X,3,4,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,9,4,6,7,8,X,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,X,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,X,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,X,9,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,X,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,X,14,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,X,19,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,X");
+                ArrayList<ICell> cells = new ArrayList<ICell>();
+
+                for(int i=0; i<input.size();i++)
+                {
+                    int k=i;
+                    Platform.runLater(()-> {
+                        tree.beginUpdate();
+
+                        ICell cell = new RectangleLabelCell(input.get(k));
+
+                        tree.getModel().addCell(new RectangleLabelCell(input.get(k)));
+                        cells.add(new RectangleLabelCell(input.get(k)));
+                        int j=k;
+                        if (j > 0) {
+                            tree.getModel().addEdge(cells.get(j), cells.get(j - 1));
+                        }
+                        tree.endUpdate();
+                    });
+                    Thread.sleep(2000);
+
+
+                }
+
+
                 //Stage secondaryStage = new Stage();
                // final SplitPane root = new SplitPane();
 
-                Graph tree = new Graph();
 
 
                 //final Scene scene2 = new Scene(root, 1024, 768);
@@ -683,31 +724,61 @@ public class Main extends Application {
 
                 //mxGraph graph = new mxGraph();
                 //Object parent = graph.getDefaultParent();
-
-                LinkedHashMap<String, puzzle> metStates = astar.getMetStates();
+                /*LinkedHashMap<String, puzzle> metStates = astar.getMetStates();
                 Iterator it = metStates.entrySet().iterator();
-                int i=0;
-                int x=0,y =0;
-                while (it.hasNext()) {
-                    x+=40;
-                    y+=40;
+                ArrayList<ICell> boards = new ArrayList<ICell>();*/
+                /*for (int i=0; i<5;i++){
+                    boards.add(new RectangleLabelCell());
+                }*/
+                /*final ICell cellC = new RectangleLabelCell();
+                final ICell cellD = new RectangleLabelCell();
+                final ICell cellE = new RectangleLabelCell();
+                final ICell cellF = new RectangleLabelCell();
+                final ICell cellG = new RectangleLabelCell();
+
+                boards.add(cellD);
+                boards.add(cellE);
+                boards.add(cellF);
+                boards.add(cellG);
+                boards.add(cellC);*/
+                /*tree.beginUpdate();
+                model.addCell(cellC);
+                model.addCell(cellD);
+                model.addCell(cellE);
+                model.addCell(cellF);
+                model.addCell(cellG);
+                model.addEdge(cellC, cellF);
+                model.addEdge(cellD, cellG);
+                tree.endUpdate();
+                tree.layout(new AbegoTreeLayout(300, 300, Configuration.Location.Bottom));*/
+
+
+                //int i=0;
+                //int x=0,y =0;
+                //tree.beginUpdate();
+                /*while (it.hasNext()) {
+                    //x+=40;
+                    //y+=40;
                     Map.Entry pair = (Map.Entry)it.next();
                     //System.out.println(pair.getKey() + " = " + pair.getValue());
-                    String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
-                    String stateOut = metStates.get(pair.getKey()).getState().toString();
-                    System.out.println(stateOut);
-                    Label boardState = new Label();
-                    boardState.setText(nextState);
-                    System.out.println(nextState);
-                    String text = text_area.getText();
+                    //String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
+                    //String stateOut = metStates.get(pair.getKey()).getState().toString();
+                    System.out.println("in");
+                    //Label boardState = new Label();
+                    //boardState.setText(nextState);
+                    //System.out.println(nextState);
+                    //String text = text_area.getText();
                     //text = text + "\n" + nextState;
                     //String areaText = text;
-                    i++;
-                    int iterate = i;
-                    int x1=x;
-                    int y1=y;
+                    //i++;
+                    //int iterate = i;
+                    //int x1=x;
+                    //int y1=y;
+
 
                     Platform.runLater(()->{
+                        tree.beginUpdate();
+                        System.out.println("in2");
                         //text_area.appendText("\nMove: "+iterate+"\n--------------------------------------------------------\n" + nextState);
                         //graph.getModel().beginUpdate();
                         //try{
@@ -724,21 +795,100 @@ public class Main extends Application {
                         //mxGraphComponent graphComponent = new mxGraphComponent(graph);
                         //treeFrame.getContentPane().add(graphComponent);
 
-                        addTreeComponents(tree);
-                        root.getItems().add(tree.getCanvas());
 
+                        //for(int i=0; i<input.size();i++)
+                        //{
+
+
+                        //ICell cell = new RectangleLabelCell("hi");
+                        /*final ICell cellB = new RectangleLabelCell();
+                        final ICell cellC = new RectangleLabelCell();
+                        final ICell cellD = new RectangleLabelCell();
+                        final ICell cellE = new RectangleLabelCell();
+                        final ICell cellF = new RectangleLabelCell();
+                        final ICell cellG = new RectangleLabelCell();*/
+
+                        //model.addCell(new RectangleLabelCell());
+                        /*addTreeComponents(tree,model);
+
+                        //cells.add(cell);
+                        //if(i>0){
+                        //    model.addEdge(cells.get(i),cells.get(i-1));
+                        //}
+                        model.addCell(cellB);
+                        model.addCell(cellC);
+                        model.addCell(cellD);
+                        model.addCell(cellE);
+                        model.addCell(cellF);
+                        model.addCell(cellG);
+
+                        model.addEdge(cellA, cellB);
+                        model.addEdge(cellA, cellC);
+                        model.addEdge(cellA, cellD);
+                        model.addEdge(cellB, cellE);
+                        model.addEdge(cellC, cellF);
+                        model.addEdge(cellD, cellG);
+
+                        //final Edge edgeAB = new Edge(cellA, cellB);
+                        //edgeAB.textProperty().set("Edges can have text too!");
+                        //model.addEdge(edgeAB);
+                        //final CorneredEdge edgeAC = new CorneredEdge(cellA, cellC, Orientation.HORIZONTAL);
+                        //edgeAC.textProperty().set("Edges can have corners too!");
+                        //model.addEdge(edgeAC);
+                        //model.addEdge(cellB, cellD);
+                        //final DoubleCorneredEdge edgeBE = new DoubleCorneredEdge(cellB, cellE, Orientation.HORIZONTAL);
+                        //edgeBE.textProperty().set("You can implement custom edges and nodes too!");
+                        //model.addEdge(edgeBE);
+                        //model.addEdge(cellC, cellF);
+                        //model.addEdge(cellC, cellG);
+
+
+                        //}
+
+
+
+                        //addTreeComponents(tree);
+
+                        tree.endUpdate();
                     });
+
                     it.remove(); // avoids a ConcurrentModificationException
                     //Thread.sleep(50);
 
-                    Thread.sleep(500);
+
+                    Thread.sleep(2000);
+
+
+                }*/
+
+                /*for(int j=0;j<5;j++){
+                    int k =j;
+                    //tree.beginUpdate();
+
+                    Platform.runLater(()->{
+
+                        System.out.println("in2");
+
+
+                        int l =k;
+                        model.addCell(boards.get(k));
+                        if(l ==4){
+                            model.addEdge(cellC, cellF);
+                            model.addEdge(cellD, cellG);
+                        }
+                        tree.endUpdate();
+
+
+                    });
 
 
                 }
+                tree.layout(new AbegoTreeLayout(300, 300, Configuration.Location.Bottom));
+
 
                 return null;
             }
-        };
+        };*/
 
         Reset.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
@@ -768,7 +918,42 @@ public class Main extends Application {
         });
         Results.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                new Thread(results).start();
+                LinkedHashMap<String, puzzle> metStates = astar.getMetStates();
+                secondaryStage.setScene(scene);
+                secondaryStage.show();
+                Iterator it = metStates.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry) it.next();
+                    String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
+                    ICell cell = new RectangleLabelCell(nextState);
+                    allStates.add(nextState);
+                    cells.add(cell);
+                    System.out.println(cell);
+                }
+                System.out.println(cells.size());
+                if(nodeIt < cells.size()) {
+                    addTreeComponent(tree, nodeIt, cells, allStates,true);
+                    nodeIt++;
+                }
+            }
+        });
+
+        advanceGraph.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                SplitPane newRoot = new SplitPane();
+
+                Graph newTree = new Graph();
+
+
+                if(nodeIt < cells.size()) {
+                    addTreeComponent(newTree, nodeIt, cells, allStates,false);
+                    nodeIt++;
+
+                    newRoot.getItems().add(newTree.getCanvas());
+                    Scene newScene = new Scene(newRoot, 1920, 1080);
+                    newScene.getStylesheets().add(getClass().getResource("/application.css").toExternalForm());
+                    secondaryStage.setScene(newScene);
+                }
             }
         });
 
@@ -1341,7 +1526,7 @@ public class Main extends Application {
         sqs.add(blank, tmpC, tmpR);
     }
 
-    public int getTilesOutOfPlace(/*ArrayList<ArrayList<Integer>> PositionsDup, ArrayList<Button> butts*/List<String> boardState) {
+    /*public int getTilesOutOfPlace(List<String> boardState) {
 
         int tOOP = 0;
         List<String> winningState = new ArrayList<>(Arrays.asList("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","-1"));
@@ -1352,7 +1537,7 @@ public class Main extends Application {
             }
         }
 
-        /*for(int i = 0;i<PositionsDup.size();i++)
+        for(int i = 0;i<PositionsDup.size();i++)
         {
             int buttonC = GridPane.getColumnIndex(butts.get(i));
             int buttonR = GridPane.getRowIndex(butts.get(i));
@@ -1364,9 +1549,9 @@ public class Main extends Application {
                 tOOP++;
             }
 
-        }*/
+        }
         return tOOP;
-    }
+    }*/
 
     public Boolean proximityCheck(Button butt, Button emptyButt){
         int emptyC = GridPane.getColumnIndex(emptyButt);
@@ -1753,16 +1938,88 @@ public class Main extends Application {
         frame.getContentPane().add(graphComponent);
     }
 
+
+
+    private void addTreeComponent(Graph graph, int boardNum, ArrayList<ICell>cells, ArrayList<String> states, Boolean rootNode) throws IndexOutOfBoundsException{
+        final Model model = graph.getModel();
+        System.out.println("in");
+        graph.beginUpdate();
+        int j = 0;
+        while (j <= boardNum){
+            model.addCell(cells.get(j));
+            j++;
+        }
+        if(!rootNode){
+            for (int i = 1; i < cells.size(); i++) {
+                if(i==1){
+                    model.addEdge(cells.get(1), cells.get(0));
+                }
+                if(i>1){
+                    for(int k = 0; k<i; k++){
+                        if (hasEdge(states.get(i), states.get(k))) {
+                            System.out.println("true");
+                            model.addEdge(cells.get(i), cells.get(k));
+                        }
+                    }
+                }
+            }
+        }
+        //graph.getModel().addCell(new RectangleLabelCell("1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,X"));
+        //model.addCell(new RectangleLabelCell("1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,X"));
+
+        graph.endUpdate();
+        graph.layout(new AbegoTreeLayout(300, 300, Configuration.Location.Top));
+    }
+
+    public ICell createBoardNode(String state){
+        return new RectangleLabelCell(state);
+    }
+
+    public boolean hasEdge(String nextCell, String prevCell){
+        String [] nextCellNums = nextCell.split(",");
+        String [] prevCellNums = prevCell.split(",");
+
+        System.out.println(nextCell);
+        System.out.println(prevCell);
+
+
+
+        int ncn = -1;
+        int pcn = -1;
+
+        for (int i=0;i<nextCellNums.length;i++) {
+            if (nextCellNums[i].equals("X")) {
+                ncn = i;
+            }
+        }
+        for (int i=0;i<prevCellNums.length;i++) {
+            if (prevCellNums[i].equals("X")) {
+                pcn = i;
+            }
+        }
+
+        System.out.println(ncn);
+        System.out.println(pcn);
+
+
+        if(ncn - pcn == 5 || ncn-pcn == -5 || ncn - pcn == 1 || ncn-pcn == -1 ) {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     private void addTreeComponents(Graph graph) {
         List<String> input = Arrays.asList("1,2,3,X,4,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20", "1,2,X,3,4,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,9,4,6,7,8,X,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,X,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,X,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,X,9,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,X,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,X,14,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,X,19,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,X");
         ArrayList<ICell> cells = new ArrayList<ICell>();
         final Model model = graph.getModel();
         graph.beginUpdate();
-        //for(int i=0; i<input.size();i++)
-        //{
+        for(int i=0; i<input.size();i++)
+        {
 
 
-        ICell cell = new RectangleLabelCell("hi");
+            ICell cell = new RectangleLabelCell(input.get(i));
             /*final ICell cellB = new RectangleLabelCell();
             final ICell cellC = new RectangleLabelCell();
             final ICell cellD = new RectangleLabelCell();
@@ -1770,11 +2027,11 @@ public class Main extends Application {
             final ICell cellF = new RectangleLabelCell();
             final ICell cellG = new RectangleLabelCell();*/
 
-        model.addCell(cell);
-            //cells.add(cell);
-            //if(i>0){
-            //    model.addEdge(cells.get(i),cells.get(i-1));
-            //}
+            model.addCell(cell);
+            cells.add(cell);
+            if(i>0){
+                model.addEdge(cells.get(i),cells.get(i-1));
+            }
             /*model.addCell(cellB);
             model.addCell(cellC);
             model.addCell(cellD);
@@ -1803,7 +2060,7 @@ public class Main extends Application {
             //model.addEdge(cellC, cellG);
 
 
-        //}
+        }
         graph.endUpdate();
         graph.layout(new AbegoTreeLayout(300, 300, Configuration.Location.Bottom));
     }
@@ -1816,14 +2073,26 @@ public class Main extends Application {
     }
 }
 
+
+
 class RectangleLabelCell extends AbstractCell {
-    public RectangleLabelCell(String board) {
+    String id;
+    public RectangleLabelCell() {
+    }
+
+    public RectangleLabelCell(String id) {
+        this.id = id;
+    }
+    public String GetId()
+    {
+        return id;
     }
 
     public Region getGraphic(Graph graph) {
         //Rectangle view = new Rectangle(50.0D, 50.0D);
         Pane back = new Pane();
-        back.setStyle("-fx-background-color: grey;");
+        ArrayList<Button> bts = new ArrayList<>();
+        //back.setStyle("-fx-background-color: grey;");
         back.prefWidth(100.0);
         back.prefHeight(100.0);
         GridPane sqs = new GridPane();
@@ -1832,26 +2101,10 @@ class RectangleLabelCell extends AbstractCell {
         sqs.setPadding(new Insets(5));
         back.getChildren().addAll(sqs);
 
+        String [] tileNums = id.split(",");
+
         ArrayList<ArrayList<Integer>> Positions = new ArrayList<ArrayList<Integer>>();
         ArrayList<ArrayList<Integer>> PositionsDup = new ArrayList<ArrayList<Integer>>();
-        /*int k=0;
-        for(int i=0;i<4;i++){
-            for(int j=0;j<4;i++){
-                ArrayList<Integer> sq = new ArrayList<Integer>();
-                sq.add(j);
-                sq.add(i);
-                Positions.add(sq);
-                PositionsDup.add(sq);
-                String kDup = k+"";
-                Button bt = new Button();
-                bt.setText(kDup);
-                bt.setMinWidth(10);
-                bt.setMinHeight(10);
-                bt.setStyle("-fx-background-color: Turquoise");
-                sqs.add(bt, Positions.get(k).get(0), Positions.get(k).get(1));
-                k++;
-            }
-        }*/
 
         ArrayList<Integer> sq1 = new ArrayList<Integer>();
         sq1.add(0);
@@ -2004,185 +2257,212 @@ class RectangleLabelCell extends AbstractCell {
         PositionsDup.add(sq25);
 
         Button s1 = new Button();
-        s1.setText("1");
+        s1.setText(tileNums[0]);
         sqs.add(s1, Positions.get(0).get(0), Positions.get(0).get(1));
         s1.setMinWidth(30);
         s1.setMinHeight(30);
         s1.setStyle("-fx-background-color: Turquoise");
+        bts.add(s1);
 
         Button s2 = new Button();
-        s2.setText("2");
+        s2.setText(tileNums[1]);
         s2.setMinWidth(30);
         s2.setMinHeight(30);
         sqs.add(s2, Positions.get(1).get(0), Positions.get(1).get(1));
         s2.setStyle("-fx-background-color: Turquoise");
+        bts.add(s2);
 
         Button s3 = new Button();
-        s3.setText("3");
+        s3.setText(tileNums[2]);
         s3.setMinWidth(30);
         s3.setMinHeight(30);
         sqs.add(s3, Positions.get(2).get(0), Positions.get(2).get(1));
         s3.setStyle("-fx-background-color: Turquoise");
+        bts.add(s3);
 
         Button s4 = new Button();
-        s4.setText("4");
+        s4.setText(tileNums[3]);
         s4.setMinWidth(30);
         s4.setMinHeight(30);
         sqs.add(s4, Positions.get(3).get(0), Positions.get(3).get(1));
         s4.setStyle("-fx-background-color: Turquoise");
+        bts.add(s4);
 
         Button s5 = new Button();
-        s5.setText("5");
+        s5.setText(tileNums[4]);
         s5.setMinWidth(30);
         s5.setMinHeight(30);
         sqs.add(s5, Positions.get(4).get(0), Positions.get(4).get(1));
         s5.setStyle("-fx-background-color: Turquoise");
+        bts.add(s5);
 
         Button s6 = new Button();
-        s6.setText("6");
+        s6.setText(tileNums[5]);
         s6.setMinWidth(30);
         s6.setMinHeight(30);
         sqs.add(s6, Positions.get(5).get(0), Positions.get(5).get(1));
         s6.setStyle("-fx-background-color: Turquoise");
+        bts.add(s6);
 
         Button s7 = new Button();
-        s7.setText("7");
+        s7.setText(tileNums[6]);
         s7.setMinWidth(30);
         s7.setMinHeight(30);
         sqs.add(s7, Positions.get(6).get(0), Positions.get(6).get(1));
         s7.setStyle("-fx-background-color: Turquoise");
+        bts.add(s7);
 
         Button s8 = new Button();
-        s8.setText("8");
+        s8.setText(tileNums[7]);
         s8.setMinWidth(30);
         s8.setMinHeight(30);
         sqs.add(s8, Positions.get(7).get(0), Positions.get(7).get(1));
         s8.setStyle("-fx-background-color: Turquoise");
+        bts.add(s8);
 
         Button s9 = new Button();
-        s9.setText("9");
+        s9.setText(tileNums[8]);
         s9.setMinWidth(30);
         s9.setMinHeight(30);
         sqs.add(s9, Positions.get(8).get(0), Positions.get(8).get(1));
         s9.setStyle("-fx-background-color: Turquoise");
+        bts.add(s9);
 
         Button s10 = new Button();
-        s10.setText("10");
+        s10.setText(tileNums[9]);
         s10.setMinWidth(30);
         s10.setMinHeight(30);
         sqs.add(s10, Positions.get(9).get(0), Positions.get(9).get(1));
         s10.setStyle("-fx-background-color: Turquoise");
+        bts.add(s10);
 
         Button s11 = new Button();
-        s11.setText("11");
+        s11.setText(tileNums[10]);
         s11.setMinWidth(30);
         s11.setMinHeight(30);
         sqs.add(s11, Positions.get(10).get(0), Positions.get(10).get(1));
         s11.setStyle("-fx-background-color: Turquoise");
+        bts.add(s11);
 
         Button s12 = new Button();
-        s12.setText("12");
+        s12.setText(tileNums[11]);
         s12.setMinWidth(30);
         s12.setMinHeight(30);
         sqs.add(s12, Positions.get(11).get(0), Positions.get(11).get(1));
         s12.setStyle("-fx-background-color: Turquoise");
+        bts.add(s12);
 
         Button s13 = new Button();
-        s13.setText("13");
+        s13.setText(tileNums[12]);
         s13.setMinWidth(30);
         s13.setMinHeight(30);
         sqs.add(s13, Positions.get(12).get(0), Positions.get(12).get(1));
         s13.setStyle("-fx-background-color: Turquoise");
+        bts.add(s13);
 
         Button s14 = new Button();
-        s14.setText("14");
+        s14.setText(tileNums[13]);
         s14.setMinWidth(30);
         s14.setMinHeight(30);
         sqs.add(s14, Positions.get(13).get(0), Positions.get(13).get(1));
         s14.setStyle("-fx-background-color: Turquoise");
+        bts.add(s14);
 
         Button s15 = new Button();
-        s15.setText("15");
+        s15.setText(tileNums[14]);
         s15.setMinWidth(30);
         s15.setMinHeight(30);
         sqs.add(s15, Positions.get(14).get(0), Positions.get(14).get(1));
         s15.setStyle("-fx-background-color: Turquoise");
+        bts.add(s15);
 
         Button s16 = new Button();
-        s16.setText("16");
+        s16.setText(tileNums[15]);
         s16.setMinWidth(30);
         s16.setMinHeight(30);
         sqs.add(s16, Positions.get(15).get(0), Positions.get(15).get(1));
         s16.setStyle("-fx-background-color: Turquoise");
+        bts.add(s16);
 
         Button s17 = new Button();
-        s17.setText("17");
+        s17.setText(tileNums[16]);
         s17.setMinWidth(30);
         s17.setMinHeight(30);
         sqs.add(s17, Positions.get(16).get(0), Positions.get(16).get(1));
         s17.setStyle("-fx-background-color: Turquoise");
+        bts.add(s17);
 
         Button s18 = new Button();
-        s18.setText("18");
+        s18.setText(tileNums[17]);
         s18.setMinWidth(30);
         s18.setMinHeight(30);
         sqs.add(s18, Positions.get(17).get(0), Positions.get(17).get(1));
         s18.setStyle("-fx-background-color: Turquoise");
+        bts.add(s18);
 
         Button s19 = new Button();
-        s19.setText("19");
+        s19.setText(tileNums[18]);
         s19.setMinWidth(30);
         s19.setMinHeight(30);
         sqs.add(s19, Positions.get(18).get(0), Positions.get(18).get(1));
         s19.setStyle("-fx-background-color: Turquoise");
+        bts.add(s19);
 
         Button s20 = new Button();
-        s20.setText("20");
+        s20.setText(tileNums[19]);
         s20.setMinWidth(30);
         s20.setMinHeight(30);
         sqs.add(s20, Positions.get(19).get(0), Positions.get(19).get(1));
         s20.setStyle("-fx-background-color: Turquoise");
+        bts.add(s20);
 
         Button s21 = new Button();
-        s21.setText("21");
+        s21.setText(tileNums[20]);
         s21.setMinWidth(30);
         s21.setMinHeight(30);
         sqs.add(s21, Positions.get(20).get(0), Positions.get(20).get(1));
         s21.setStyle("-fx-background-color: Turquoise");
+        bts.add(s21);
 
         Button s22 = new Button();
-        s22.setText("22");
+        s22.setText(tileNums[21]);
         s22.setMinWidth(30);
         s22.setMinHeight(30);
         sqs.add(s22, Positions.get(21).get(0), Positions.get(21).get(1));
         s22.setStyle("-fx-background-color: Turquoise");
+        bts.add(s22);
 
         Button s23 = new Button();
-        s23.setText("23");
+        s23.setText(tileNums[22]);
         s23.setMinWidth(30);
         s23.setMinHeight(30);
         sqs.add(s23, Positions.get(22).get(0), Positions.get(22).get(1));
         s23.setStyle("-fx-background-color: Turquoise");
+        bts.add(s23);
 
         Button s24 = new Button();
-        s24.setText("24");
+        s24.setText(tileNums[23]);
         s24.setMinWidth(30);
         s24.setMinHeight(30);
         sqs.add(s24, Positions.get(23).get(0), Positions.get(23).get(1));
         s24.setStyle("-fx-background-color: Turquoise");
+        bts.add(s24);
 
         Button s25 = new Button();
-        s25.setText("X");
-        s25.setTextFill(Color.rgb(200,200,200,0.0));
-
+        s25.setText(tileNums[24]);
+        //s25.setTextFill(Color.rgb(200,200,200,0.0));
         s25.setMinWidth(30);
         s25.setMinHeight(30);
         sqs.add(s25, Positions.get(24).get(0), Positions.get(24).get(1));
-        //s25.setStyle("-fx-background-color: MediumSeaGreen");
+        s25.setStyle("-fx-background-color: Turquoise");
+        bts.add(s25);
 
-        Button view = new Button("1\t\t2\t\t3\t4\t\t5\t\t\n\n6\t\t7\t\t8\t\t9\t\t10\t\t\n\n11\t\t12\t\t13\t\t14\t15\t\t\n\n16\t\t17\t\t18\t\t19\t\t20\t\t\n\n21\t\t22\t\t23\t\t24\t\tX\t\t");
-        //view.setStroke(Color.DODGERBLUE);
-        //view.setFill(Color.DODGERBLUE);
+        for(int i=0;i<bts.size();i++){
+            if(bts.get(i).getText().equals("X")){
+                bts.get(i).setStyle("-fx-background-color: grey;");
+            }
+        }
+
         Pane pane = new Pane(new Node[]{sqs});
         pane.setStyle("-fx-background-color: grey;");
         pane.setPrefSize(180.0D, 180.0D);
