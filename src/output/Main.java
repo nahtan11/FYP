@@ -6,8 +6,6 @@ import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
 import com.fxgraph.layout.AbegoTreeLayout;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.view.mxGraph;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -25,7 +23,6 @@ import org.abego.treelayout.Configuration;
 import src.output.Board.puzzle;
 import src.output.algorithms.astar;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.*;
 
@@ -42,6 +39,7 @@ public class Main extends Application {
     private Label label = new Label("Moves: 0");
     private boolean shuffling = false;
     private int nodeIt =0;
+    ArrayList<String> winningStates = new ArrayList<String>();
 
 
     private Node getNodeFromGridPane(GridPane pane, int col, int row) {
@@ -64,13 +62,14 @@ public class Main extends Application {
         ArrayList<String> allStates = new ArrayList<String>();
 
         final SplitPane root = new SplitPane();
+        root.setStyle("-fx-background-color: lightgrey;");
 
         Graph tree = new Graph();
         //addTreeComponents(tree);
         root.getItems().add(tree.getCanvas());
 
         Stage secondaryStage = new Stage();
-        final Scene scene = new Scene(root, 1024, 768);
+        final Scene scene = new Scene(root, 1920, 1080);
         scene.getStylesheets().add(getClass().getResource("/application.css").toExternalForm());
 
 
@@ -105,7 +104,7 @@ public class Main extends Application {
 
 
         Button shuffle = new Button();
-        shuffle.setText("Shuffle Board");
+        shuffle.setText("Shuffle");
         shuffle.setMinWidth(20);
         shuffle.setMinHeight(20);
 
@@ -542,6 +541,9 @@ public class Main extends Application {
         //s25.setStyle("-fx-background-color: MediumSeaGreen");
         butts.add(s25);
 
+        text_area.appendText("> Enter A value in the box below and click 'Shuffle' to shuffle the board.\n");
+        text_area.appendText("\n");
+
 
 
 
@@ -556,6 +558,8 @@ public class Main extends Application {
                     Thread.sleep(1000);
                 } catch (Exception e) {
                 }
+                text_area.appendText("> Random is now running.....\n");
+                text_area.appendText("\n");
 
                 while(!(checkWin(butts,PositionsDup))){
 
@@ -572,6 +576,14 @@ public class Main extends Application {
                         Thread.sleep(50);
                     }
                 }
+                text_area.appendText("> Random has finished.\n");
+                text_area.appendText("\n");
+                text_area.appendText("> Click results to see a graph of the winning moves.\n");
+                text_area.appendText("\n");
+                text_area.appendText("> After clicking 'Results' you can click 'Next Node' to add the next board state to the graph.\n");
+                text_area.appendText("\n");
+                text_area.appendText("> The winning path is represented by the board states that are light-blue colored.\n");
+                text_area.appendText("\n");
 
                 return null;
             }
@@ -584,12 +596,15 @@ public class Main extends Application {
                     Thread.sleep(1000);
                 } catch (Exception e) {
                 }
+                text_area.appendText("> AStar is now running.....\n");
+                text_area.appendText("\n");
 
 
                 int [][] desired = {{1,2,3,4,5}, {6,7,8,9,10},{11,12,13,14,15}, {16,17,18,19,20},{21,22,23,24,-1}};
                 int [][] puzzle  = new int [5][5];
 
                 ArrayList<String> winningMoves = new ArrayList<>();
+
 
                 String board = getBoardState(sqs);
                 String [] boardNums = board.split(",");
@@ -613,6 +628,7 @@ public class Main extends Application {
                 winningMoves.remove("root");
                 Collections.reverse(winningMoves);
                 System.out.println("-------------------------------------\n");
+                winningStates = winningMoves;
 
 
 
@@ -639,6 +655,14 @@ public class Main extends Application {
                     Thread.sleep(400);
                 }
                 System.out.println("End.......");
+                text_area.appendText("> AStar has finished.\n");
+                text_area.appendText("\n");
+                text_area.appendText("> Click results to see a graph of the winning moves.\n");
+                text_area.appendText("\n");
+                text_area.appendText("> After clicking 'Results' you can click 'Next Node' to add the next board state to the graph.\n");
+                text_area.appendText("\n");
+                text_area.appendText("> The winning path is represented by the board states that are light-blue colored.\n");
+                text_area.appendText("\n");
                 return null;
             }
         };
@@ -651,6 +675,8 @@ public class Main extends Application {
                 int shuffleLevel = 0;
                 int shuffleAmount = Integer.parseInt(shuffleAmt.getText());
                 shuffling =true;
+                text_area.appendText("> The board is now shuffling, please wait.....\n");
+                text_area.appendText("\n");
                 // Add delay code from initial attempt
                 try {
                     Thread.sleep(500);
@@ -670,6 +696,12 @@ public class Main extends Application {
                 }
 
                 shuffling=false;
+                text_area.appendText("> The board has been shuffled to the level of "+shuffleLevel+".\n");
+                text_area.appendText("\n");
+                text_area.appendText("> Choose either 'Random' or 'AStar' to solve the board.\n");
+                text_area.appendText("\n");
+
+
                 return null;
             }
 
@@ -925,12 +957,25 @@ public class Main extends Application {
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
                     String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
-                    ICell cell = new RectangleLabelCell(nextState);
+                    //nextState = nextState.substring(0, nextState.length() - 1);
+                    String tempState = nextState.replaceAll(",",".");
+                    tempState = tempState.replaceAll("X","-1");
+                    System.out.println(tempState);
+                    System.out.println(winningStates.get(0));
+
+                    ICell cell;
+                    if(winningStates.contains(tempState)){
+                        System.out.print("Win");
+                         cell = new RectangleLabelCell(nextState, true);
+                    }
+                    else{
+                         cell = new RectangleLabelCell(nextState, false);
+                    }
                     allStates.add(nextState);
                     cells.add(cell);
-                    System.out.println(cell);
+                    //System.out.println(cell);
                 }
-                System.out.println(cells.size());
+                //System.out.println(cells.size());
                 if(nodeIt < cells.size()) {
                     addTreeComponent(tree, nodeIt, cells, allStates,true);
                     nodeIt++;
@@ -953,6 +998,9 @@ public class Main extends Application {
                     Scene newScene = new Scene(newRoot, 1920, 1080);
                     newScene.getStylesheets().add(getClass().getResource("/application.css").toExternalForm());
                     secondaryStage.setScene(newScene);
+                }else{
+                    text_area.appendText("> All board states have been added to the graph.\n");
+                    text_area.appendText("\n");
                 }
             }
         });
@@ -970,12 +1018,12 @@ public class Main extends Application {
                     moveTile(s1,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -993,12 +1041,12 @@ public class Main extends Application {
                     moveTile(s2,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1016,12 +1064,12 @@ public class Main extends Application {
                     moveTile(s3,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1039,12 +1087,12 @@ public class Main extends Application {
                     moveTile(s4,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1062,12 +1110,12 @@ public class Main extends Application {
                     moveTile(s5,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1085,12 +1133,12 @@ public class Main extends Application {
                     moveTile(s6,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1108,12 +1156,12 @@ public class Main extends Application {
                     moveTile(s7,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1131,12 +1179,12 @@ public class Main extends Application {
                     moveTile(s8,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1154,12 +1202,12 @@ public class Main extends Application {
                     moveTile(s9,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1177,12 +1225,12 @@ public class Main extends Application {
                     moveTile(s10,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1200,12 +1248,12 @@ public class Main extends Application {
                     moveTile(s11,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1223,12 +1271,12 @@ public class Main extends Application {
                     moveTile(s12,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1246,12 +1294,12 @@ public class Main extends Application {
                     moveTile(s13,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1269,12 +1317,12 @@ public class Main extends Application {
                     moveTile(s14,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1292,12 +1340,12 @@ public class Main extends Application {
                     moveTile(s15,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1315,12 +1363,12 @@ public class Main extends Application {
                     moveTile(s16,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1338,12 +1386,12 @@ public class Main extends Application {
                     moveTile(s17,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1361,12 +1409,12 @@ public class Main extends Application {
                     moveTile(s18,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1384,12 +1432,12 @@ public class Main extends Application {
                     moveTile(s19,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1408,12 +1456,12 @@ public class Main extends Application {
                     moveTile(s20,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1431,12 +1479,12 @@ public class Main extends Application {
                     moveTile(s21,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1454,12 +1502,12 @@ public class Main extends Application {
                     moveTile(s22,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1477,12 +1525,12 @@ public class Main extends Application {
                     moveTile(s23,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1500,12 +1548,12 @@ public class Main extends Application {
                     moveTile(s24,s25,sqs);
                     counter();
                     label.setText("Moves: "+Integer.toString(counter));
-                    if(checkWin(butts,PositionsDup)){
+                    /*if(checkWin(butts,PositionsDup)){
                         if (!popup.isShowing())
                             popup.show(primaryStage);
                         else
                             popup.hide();
-                    }
+                    }*/
                 }
                 else{
                     System.out.println("false");
@@ -1892,51 +1940,6 @@ public class Main extends Application {
         return State;
     }
 
-    private static final long serialVersionUID = -2707712944901661771L;
-    public void treeStructure(JFrame frame)
-    {
-        //super("Hello, World!");
-        LinkedHashMap<String, puzzle> metStates = astar.getMetStates();
-        System.out.println(metStates);
-        mxGraph graph = new mxGraph();
-        Object parent = graph.getDefaultParent();
-
-        graph.getModel().beginUpdate();
-        try
-        {
-            /*Object v1 = graph.insertVertex(parent, null, "Hello", 20, 20, 80,
-                    30);
-            Object v2 = graph.insertVertex(parent, null, "World!", 240, 150,
-                    80, 30);
-            graph.insertEdge(parent, null, "Edge", v1, v2);*/
-            Iterator it = metStates.entrySet().iterator();
-            int i=0;
-            int x = 20;
-            int y = 20;
-            while (it.hasNext()) {
-                x+=40;
-                y+=40;
-                Map.Entry pair = (Map.Entry)it.next();
-                System.out.println(i);
-                String nextState = PrintPuzzle(metStates.get(pair.getKey()).getState());
-                Object v1 = graph.insertVertex(parent, null, nextState, x, y, 80,
-                        30);
-                i++;
-
-                it.remove(); // avoids a ConcurrentModificationException
-                //Thread.sleep(50);
-
-
-            }
-        }
-        finally
-        {
-            graph.getModel().endUpdate();
-        }
-
-        mxGraphComponent graphComponent = new mxGraphComponent(graph);
-        frame.getContentPane().add(graphComponent);
-    }
 
 
 
@@ -1971,9 +1974,9 @@ public class Main extends Application {
         graph.layout(new AbegoTreeLayout(300, 300, Configuration.Location.Top));
     }
 
-    public ICell createBoardNode(String state){
+    /*public ICell createBoardNode(String state){
         return new RectangleLabelCell(state);
-    }
+    }*/
 
     public boolean hasEdge(String nextCell, String prevCell){
         String [] nextCellNums = nextCell.split(",");
@@ -2010,7 +2013,7 @@ public class Main extends Application {
         }
     }
 
-    private void addTreeComponents(Graph graph) {
+    /*private void addTreeComponents(Graph graph) {
         List<String> input = Arrays.asList("1,2,3,X,4,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20", "1,2,X,3,4,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,9,4,6,7,8,X,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,X,6,7,8,9,5,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,X,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,X,9,11,12,13,14,10,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,X,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,X,14,16,17,18,19,15,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,X,19,21,22,23,24,20","1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,X");
         ArrayList<ICell> cells = new ArrayList<ICell>();
         final Model model = graph.getModel();
@@ -2020,19 +2023,19 @@ public class Main extends Application {
 
 
             ICell cell = new RectangleLabelCell(input.get(i));
-            /*final ICell cellB = new RectangleLabelCell();
+            final ICell cellB = new RectangleLabelCell();
             final ICell cellC = new RectangleLabelCell();
             final ICell cellD = new RectangleLabelCell();
             final ICell cellE = new RectangleLabelCell();
             final ICell cellF = new RectangleLabelCell();
-            final ICell cellG = new RectangleLabelCell();*/
+            final ICell cellG = new RectangleLabelCell();
 
             model.addCell(cell);
             cells.add(cell);
             if(i>0){
                 model.addEdge(cells.get(i),cells.get(i-1));
             }
-            /*model.addCell(cellB);
+            model.addCell(cellB);
             model.addCell(cellC);
             model.addCell(cellD);
             model.addCell(cellE);
@@ -2044,7 +2047,7 @@ public class Main extends Application {
             model.addEdge(cellA, cellD);
             model.addEdge(cellB, cellE);
             model.addEdge(cellC, cellF);
-            model.addEdge(cellD, cellG);*/
+            model.addEdge(cellD, cellG);
 
             //final Edge edgeAB = new Edge(cellA, cellB);
             //edgeAB.textProperty().set("Edges can have text too!");
@@ -2063,7 +2066,7 @@ public class Main extends Application {
         }
         graph.endUpdate();
         graph.layout(new AbegoTreeLayout(300, 300, Configuration.Location.Bottom));
-    }
+    }*/
 
 
 
@@ -2077,11 +2080,13 @@ public class Main extends Application {
 
 class RectangleLabelCell extends AbstractCell {
     String id;
+    Boolean winState;
     public RectangleLabelCell() {
     }
 
-    public RectangleLabelCell(String id) {
+    public RectangleLabelCell(String id, Boolean winState) {
         this.id = id;
+        this.winState = winState;
     }
     public String GetId()
     {
@@ -2261,7 +2266,7 @@ class RectangleLabelCell extends AbstractCell {
         sqs.add(s1, Positions.get(0).get(0), Positions.get(0).get(1));
         s1.setMinWidth(30);
         s1.setMinHeight(30);
-        s1.setStyle("-fx-background-color: Turquoise");
+        s1.setStyle("-fx-background-color: orangered");
         bts.add(s1);
 
         Button s2 = new Button();
@@ -2269,7 +2274,7 @@ class RectangleLabelCell extends AbstractCell {
         s2.setMinWidth(30);
         s2.setMinHeight(30);
         sqs.add(s2, Positions.get(1).get(0), Positions.get(1).get(1));
-        s2.setStyle("-fx-background-color: Turquoise");
+        s2.setStyle("-fx-background-color: orangered");
         bts.add(s2);
 
         Button s3 = new Button();
@@ -2277,7 +2282,7 @@ class RectangleLabelCell extends AbstractCell {
         s3.setMinWidth(30);
         s3.setMinHeight(30);
         sqs.add(s3, Positions.get(2).get(0), Positions.get(2).get(1));
-        s3.setStyle("-fx-background-color: Turquoise");
+        s3.setStyle("-fx-background-color: orangered");
         bts.add(s3);
 
         Button s4 = new Button();
@@ -2285,7 +2290,7 @@ class RectangleLabelCell extends AbstractCell {
         s4.setMinWidth(30);
         s4.setMinHeight(30);
         sqs.add(s4, Positions.get(3).get(0), Positions.get(3).get(1));
-        s4.setStyle("-fx-background-color: Turquoise");
+        s4.setStyle("-fx-background-color: orangered");
         bts.add(s4);
 
         Button s5 = new Button();
@@ -2293,7 +2298,7 @@ class RectangleLabelCell extends AbstractCell {
         s5.setMinWidth(30);
         s5.setMinHeight(30);
         sqs.add(s5, Positions.get(4).get(0), Positions.get(4).get(1));
-        s5.setStyle("-fx-background-color: Turquoise");
+        s5.setStyle("-fx-background-color: orangered");
         bts.add(s5);
 
         Button s6 = new Button();
@@ -2301,7 +2306,7 @@ class RectangleLabelCell extends AbstractCell {
         s6.setMinWidth(30);
         s6.setMinHeight(30);
         sqs.add(s6, Positions.get(5).get(0), Positions.get(5).get(1));
-        s6.setStyle("-fx-background-color: Turquoise");
+        s6.setStyle("-fx-background-color: orangered");
         bts.add(s6);
 
         Button s7 = new Button();
@@ -2309,7 +2314,7 @@ class RectangleLabelCell extends AbstractCell {
         s7.setMinWidth(30);
         s7.setMinHeight(30);
         sqs.add(s7, Positions.get(6).get(0), Positions.get(6).get(1));
-        s7.setStyle("-fx-background-color: Turquoise");
+        s7.setStyle("-fx-background-color: orangered");
         bts.add(s7);
 
         Button s8 = new Button();
@@ -2317,7 +2322,7 @@ class RectangleLabelCell extends AbstractCell {
         s8.setMinWidth(30);
         s8.setMinHeight(30);
         sqs.add(s8, Positions.get(7).get(0), Positions.get(7).get(1));
-        s8.setStyle("-fx-background-color: Turquoise");
+        s8.setStyle("-fx-background-color: orangered");
         bts.add(s8);
 
         Button s9 = new Button();
@@ -2325,7 +2330,7 @@ class RectangleLabelCell extends AbstractCell {
         s9.setMinWidth(30);
         s9.setMinHeight(30);
         sqs.add(s9, Positions.get(8).get(0), Positions.get(8).get(1));
-        s9.setStyle("-fx-background-color: Turquoise");
+        s9.setStyle("-fx-background-color: orangered");
         bts.add(s9);
 
         Button s10 = new Button();
@@ -2333,7 +2338,7 @@ class RectangleLabelCell extends AbstractCell {
         s10.setMinWidth(30);
         s10.setMinHeight(30);
         sqs.add(s10, Positions.get(9).get(0), Positions.get(9).get(1));
-        s10.setStyle("-fx-background-color: Turquoise");
+        s10.setStyle("-fx-background-color: orangered");
         bts.add(s10);
 
         Button s11 = new Button();
@@ -2341,7 +2346,7 @@ class RectangleLabelCell extends AbstractCell {
         s11.setMinWidth(30);
         s11.setMinHeight(30);
         sqs.add(s11, Positions.get(10).get(0), Positions.get(10).get(1));
-        s11.setStyle("-fx-background-color: Turquoise");
+        s11.setStyle("-fx-background-color: orangered");
         bts.add(s11);
 
         Button s12 = new Button();
@@ -2349,7 +2354,7 @@ class RectangleLabelCell extends AbstractCell {
         s12.setMinWidth(30);
         s12.setMinHeight(30);
         sqs.add(s12, Positions.get(11).get(0), Positions.get(11).get(1));
-        s12.setStyle("-fx-background-color: Turquoise");
+        s12.setStyle("-fx-background-color: orangered");
         bts.add(s12);
 
         Button s13 = new Button();
@@ -2357,7 +2362,7 @@ class RectangleLabelCell extends AbstractCell {
         s13.setMinWidth(30);
         s13.setMinHeight(30);
         sqs.add(s13, Positions.get(12).get(0), Positions.get(12).get(1));
-        s13.setStyle("-fx-background-color: Turquoise");
+        s13.setStyle("-fx-background-color: orangered");
         bts.add(s13);
 
         Button s14 = new Button();
@@ -2365,7 +2370,7 @@ class RectangleLabelCell extends AbstractCell {
         s14.setMinWidth(30);
         s14.setMinHeight(30);
         sqs.add(s14, Positions.get(13).get(0), Positions.get(13).get(1));
-        s14.setStyle("-fx-background-color: Turquoise");
+        s14.setStyle("-fx-background-color: orangered");
         bts.add(s14);
 
         Button s15 = new Button();
@@ -2373,7 +2378,7 @@ class RectangleLabelCell extends AbstractCell {
         s15.setMinWidth(30);
         s15.setMinHeight(30);
         sqs.add(s15, Positions.get(14).get(0), Positions.get(14).get(1));
-        s15.setStyle("-fx-background-color: Turquoise");
+        s15.setStyle("-fx-background-color: orangered");
         bts.add(s15);
 
         Button s16 = new Button();
@@ -2381,7 +2386,7 @@ class RectangleLabelCell extends AbstractCell {
         s16.setMinWidth(30);
         s16.setMinHeight(30);
         sqs.add(s16, Positions.get(15).get(0), Positions.get(15).get(1));
-        s16.setStyle("-fx-background-color: Turquoise");
+        s16.setStyle("-fx-background-color: orangered");
         bts.add(s16);
 
         Button s17 = new Button();
@@ -2389,7 +2394,7 @@ class RectangleLabelCell extends AbstractCell {
         s17.setMinWidth(30);
         s17.setMinHeight(30);
         sqs.add(s17, Positions.get(16).get(0), Positions.get(16).get(1));
-        s17.setStyle("-fx-background-color: Turquoise");
+        s17.setStyle("-fx-background-color: orangered");
         bts.add(s17);
 
         Button s18 = new Button();
@@ -2397,7 +2402,7 @@ class RectangleLabelCell extends AbstractCell {
         s18.setMinWidth(30);
         s18.setMinHeight(30);
         sqs.add(s18, Positions.get(17).get(0), Positions.get(17).get(1));
-        s18.setStyle("-fx-background-color: Turquoise");
+        s18.setStyle("-fx-background-color: orangered");
         bts.add(s18);
 
         Button s19 = new Button();
@@ -2405,7 +2410,7 @@ class RectangleLabelCell extends AbstractCell {
         s19.setMinWidth(30);
         s19.setMinHeight(30);
         sqs.add(s19, Positions.get(18).get(0), Positions.get(18).get(1));
-        s19.setStyle("-fx-background-color: Turquoise");
+        s19.setStyle("-fx-background-color: orangered");
         bts.add(s19);
 
         Button s20 = new Button();
@@ -2413,7 +2418,7 @@ class RectangleLabelCell extends AbstractCell {
         s20.setMinWidth(30);
         s20.setMinHeight(30);
         sqs.add(s20, Positions.get(19).get(0), Positions.get(19).get(1));
-        s20.setStyle("-fx-background-color: Turquoise");
+        s20.setStyle("-fx-background-color: orangered");
         bts.add(s20);
 
         Button s21 = new Button();
@@ -2421,7 +2426,7 @@ class RectangleLabelCell extends AbstractCell {
         s21.setMinWidth(30);
         s21.setMinHeight(30);
         sqs.add(s21, Positions.get(20).get(0), Positions.get(20).get(1));
-        s21.setStyle("-fx-background-color: Turquoise");
+        s21.setStyle("-fx-background-color: orangered");
         bts.add(s21);
 
         Button s22 = new Button();
@@ -2429,7 +2434,7 @@ class RectangleLabelCell extends AbstractCell {
         s22.setMinWidth(30);
         s22.setMinHeight(30);
         sqs.add(s22, Positions.get(21).get(0), Positions.get(21).get(1));
-        s22.setStyle("-fx-background-color: Turquoise");
+        s22.setStyle("-fx-background-color: orangered");
         bts.add(s22);
 
         Button s23 = new Button();
@@ -2437,7 +2442,7 @@ class RectangleLabelCell extends AbstractCell {
         s23.setMinWidth(30);
         s23.setMinHeight(30);
         sqs.add(s23, Positions.get(22).get(0), Positions.get(22).get(1));
-        s23.setStyle("-fx-background-color: Turquoise");
+        s23.setStyle("-fx-background-color: orangered");
         bts.add(s23);
 
         Button s24 = new Button();
@@ -2445,7 +2450,7 @@ class RectangleLabelCell extends AbstractCell {
         s24.setMinWidth(30);
         s24.setMinHeight(30);
         sqs.add(s24, Positions.get(23).get(0), Positions.get(23).get(1));
-        s24.setStyle("-fx-background-color: Turquoise");
+        s24.setStyle("-fx-background-color: orangered");
         bts.add(s24);
 
         Button s25 = new Button();
@@ -2454,9 +2459,15 @@ class RectangleLabelCell extends AbstractCell {
         s25.setMinWidth(30);
         s25.setMinHeight(30);
         sqs.add(s25, Positions.get(24).get(0), Positions.get(24).get(1));
-        s25.setStyle("-fx-background-color: Turquoise");
+        s25.setStyle("-fx-background-color: orangered");
         bts.add(s25);
 
+        for(int i=0;i<bts.size();i++){
+            if(winState){
+                System.out.println("");
+                bts.get(i).setStyle("-fx-background-color: Turquoise;");
+            }
+        }
         for(int i=0;i<bts.size();i++){
             if(bts.get(i).getText().equals("X")){
                 bts.get(i).setStyle("-fx-background-color: grey;");
