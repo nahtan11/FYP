@@ -1,23 +1,14 @@
 package src.output.algorithms;
-
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.TextArea;
-import org.w3c.dom.Text;
 import src.output.Board.puzzle;
-
-import java.awt.*;
-import javafx.scene.control.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class astar {
+public class AStar {
 
-    static LinkedHashMap<String, puzzle> metStates  = new LinkedHashMap<String, puzzle>();
-    static LinkedHashMap<String, puzzle> openStates = new LinkedHashMap<String, puzzle> ();
+    static LinkedHashMap<String, puzzle> metStates  = new LinkedHashMap<>();
+    static LinkedHashMap<String, puzzle> openStates = new LinkedHashMap<> ();
+    static ArrayList<Integer> hVals = new ArrayList<>();
 
 
 
@@ -34,6 +25,7 @@ public class astar {
         boolean stop = false;
         if(new_puzzle1.length >2) {
             int cost1 = fitness(desired, new_puzzle1);
+           // hVals.add(cost1);
             puzzle p1 = new puzzle(converStateToString(new_puzzle1),	newState.getCode(), new_puzzle1, newState.getLevel()+1, cost1);
             metStates.put(p1.getCode(), p1);
             openStates.put(p1.getCode(), p1);
@@ -45,6 +37,7 @@ public class astar {
 
         if(new_puzzle2.length >2) {
             int cost2 = fitness(desired, new_puzzle2);
+            //hVals.add(cost2);
             puzzle p2 = new puzzle(converStateToString(new_puzzle2),	newState.getCode(), new_puzzle2, newState.getLevel()+1, cost2);
             metStates.put(p2.getCode(), p2);
             openStates.put(p2.getCode(), p2);
@@ -56,6 +49,7 @@ public class astar {
 
         if(new_puzzle3.length >2) {
             int cost3 = fitness(desired, new_puzzle3);
+            //hVals.add(cost3);
             puzzle p3 = new puzzle(converStateToString(new_puzzle3),	newState.getCode(), new_puzzle3, newState.getLevel()+1, cost3);
             metStates.put(p3.getCode(), p3);
             openStates.put(p3.getCode(), p3);
@@ -66,6 +60,7 @@ public class astar {
         }
         if(new_puzzle4.length >2) {
             int cost4 = fitness(desired, new_puzzle4);
+            //hVals.add(cost4);
             puzzle p4 = new puzzle(converStateToString(new_puzzle4),	newState.getCode(), new_puzzle4, newState.getLevel()+1, cost4);
             metStates.put(p4.getCode(), p4);
             openStates.put(p4.getCode(), p4);
@@ -81,29 +76,11 @@ public class astar {
         int itr = 0;
         while(!stop) {
             itr++;
-            int itrtmp = itr;
-            /*Platform.runLater(()->{
-                text_area.appendText("Level: "+itrtmp+"\n");
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });*/
-            System.out.println("Level: "+itr);
-            //int h = metStates.size();
-            //if(h % 150 ==0)
-            //System.out.println(h+" "+openStates.size()+" "+itr++);
 
+            System.out.println("Level: "+itr);
             String code = bestToMoveOn(openStates);
             PrintPuzzle(metStates.get(code).getState());
             System.out.println(code);
-            //System.out.println(openStates.get(code).getCost()+"\tcode");
-            //System.out.println(h+" "+openStates.size()+" "+openStates.get(code).getCost());
-
-            //System.out.println(code+"\tcode");
-            //PrintPuzzle(openStates.get(code).getState());
-            //System.out.println("++++++++++++++");
 
 
 
@@ -113,28 +90,22 @@ public class astar {
             int [][] n_puzzle3 = move(3, openStates.get(code).getState());
             int [][] n_puzzle4 = move(4, openStates.get(code).getState());
 
-            /*if(itr==1) {
-                //System.out.println(costInWhile1+"  1");
-                //PrintPuzzle(openStates.get(code).getState());
-                //PrintPuzzle(newState.getState());
-            }*/
+
 
             if(n_puzzle1.length >2) {
                 int costInWhile1 = fitness(desired, n_puzzle1);
 
-			/*if(itr==1) {
-				System.out.println(costInWhile1+"  1");
-				PrintPuzzle(n_puzzle1);
-			}*/
                 puzzle newP1 = new puzzle(converStateToString(n_puzzle1), code, n_puzzle1, openStates.get(code).getLevel()+1,  costInWhile1);
                 if(!metStates.containsKey(converStateToString(n_puzzle1))) {
                     openStates.put(converStateToString(n_puzzle1), newP1);
                     //System.out.println("in2");
                     metStates.put(converStateToString(n_puzzle1), newP1);
+                    //hVals.add(costInWhile1);
 
                     if(fitness(desired, n_puzzle1) == 0) {
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle1);
+                        //noinspection UnusedAssignment
                         stop=true;
                         winningMoves = tracBack(converStateToString(n_puzzle1));
                         //System.out.println("h1");
@@ -154,10 +125,12 @@ public class astar {
                 if(!metStates.containsKey(converStateToString(n_puzzle2))) {
                     openStates.put(converStateToString(n_puzzle2), newP2);
                     metStates.put(converStateToString(n_puzzle2), newP2);
+                    //hVals.add(costInWhile2);
 
                     if(fitness(desired, n_puzzle2) == 0) {
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle2);
+                        //noinspection UnusedAssignment
                         stop=true;
                         winningMoves = tracBack(converStateToString(n_puzzle2));
                         //System.out.println("h2");
@@ -176,10 +149,12 @@ public class astar {
                 if(!metStates.containsKey(converStateToString(n_puzzle3))) {
                     openStates.put(converStateToString(n_puzzle3), newP3);
                     metStates.put(converStateToString(n_puzzle3), newP3);
+                    //hVals.add(costInWhile3);
 
                     if(fitness(desired, n_puzzle3) == 0){
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle3);
+                        //noinspection UnusedAssignment
                         stop=true;
                         winningMoves = tracBack(converStateToString(n_puzzle3));
                         //System.out.println("h3");
@@ -198,10 +173,12 @@ public class astar {
                 if(!metStates.containsKey(converStateToString(n_puzzle4))) {
                     openStates.put(converStateToString(n_puzzle4), newP4);
                     metStates.put(converStateToString(n_puzzle4), newP4);
+                    //hVals.add(costInWhile4);
 
                     if(fitness(desired, n_puzzle4) == 0){
                         //PrintPuzzle(desired);
                         //PrintPuzzle(n_puzzle4);
+                        //noinspection UnusedAssignment
                         stop=true;
                         winningMoves = tracBack(converStateToString(n_puzzle4));
                         //System.out.println("h4");
@@ -252,7 +229,7 @@ public class astar {
 
     public static String bestToMoveOn(Map<String, puzzle> openSt) {
 
-        ArrayList <puzzle> q = new ArrayList <puzzle>();
+        ArrayList <puzzle> q = new ArrayList <>();
 
 
 
@@ -286,35 +263,35 @@ public class astar {
 
 
     public static String converStateToString(int [][] puzzle) {
-        String State = "";
-        for (int i=0;i<puzzle.length;i++) {
-            for (int j=0;j<puzzle.length;j++) {
-                State = State + puzzle[i][j]+".";
+        StringBuilder State = new StringBuilder();
+        for (int[] ints : puzzle) {
+            for (int j = 0; j < puzzle.length; j++) {
+                State.append(ints[j]).append(".");
             }
         }
-        return State;
+        return State.toString();
     }
 
 
     public static void PrintPuzzle(int [][] puzzle){
-        String puzzle_out="";
-        for (int i=0;i<puzzle.length;i++) {
-            for (int j=0;j<puzzle.length;j++) {
-                if(puzzle[i][j]!=-1) {
+        StringBuilder puzzle_out= new StringBuilder();
+        for (int[] ints : puzzle) {
+            for (int j = 0; j < puzzle.length; j++) {
+                if (ints[j] != -1) {
 
-                    puzzle_out+=puzzle[i][j] + "\t";
-                    System.out.print(puzzle[i][j] + "\t");
-                }
-                else {
-                    puzzle_out+="X\t";
+                    puzzle_out.append(ints[j]).append("\t");
+                    System.out.print(ints[j] + "\t");
+                } else {
+                    puzzle_out.append("X\t");
                     System.out.print("X\t");
                 }
             }
-            puzzle_out+="\n";
+            puzzle_out.append("\n");
             System.out.println();
         }
         System.out.println();
-        String puzz = puzzle_out;
+        //noinspection unused
+        String puzz = puzzle_out.toString();
         /*Platform.runLater(()->{
             text_area.textProperty().addListener(new ChangeListener<Object>() {
                 @Override
@@ -358,14 +335,14 @@ public class astar {
 
     public static int [][] move(int direction, int [][] puzzle) {
 
+        //noinspection ConstantConditions
         int empty_x = X_location(puzzle)[0];
+        //noinspection ConstantConditions
         int empty_y = X_location(puzzle)[1];
         int [][] new_puzzle = new int [puzzle.length][puzzle.length];
         int [][] nullArray = {{1,1},{1,1}} ;
         for (int i=0;i<puzzle.length;i++) {
-            for (int j=0;j<puzzle.length;j++) {
-                new_puzzle[i][j] = puzzle[i][j];
-            }
+            System.arraycopy(puzzle[i], 0, new_puzzle[i], 0, puzzle.length);
         }
         if(direction == 1) {
             if(empty_x>0) {
@@ -427,11 +404,15 @@ public class astar {
             //System.out.println(x1+" "+x2+" "+y1+" "+y2);
             cost += Math.abs(x1-x2)+Math.abs(y1-y2);
         }
+        hVals.add(cost);
         return cost;
     }
 
     public static LinkedHashMap<String, puzzle> getMetStates() {
         return metStates;
+    }
+    public static ArrayList<Integer> gethVals() {
+        return hVals;
     }
 
     /*public static int fitnessless(int [][] desired, int [][] src.output.Board.puzzle) {

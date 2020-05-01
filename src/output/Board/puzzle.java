@@ -14,28 +14,27 @@ public class puzzle {
 
         this.state = new int [state.length][state.length];
         for(int i=0;i<state.length;i++) {
-            for(int j=0;j<state.length;j++) {
-                this.state[i][j] = state[i][j];
-            }
+            System.arraycopy(state[i], 0, this.state[i], 0, state.length);
         }
         this.level = level;
         this.cost = cost;
     }
 
 
+    @SuppressWarnings("unused")
     public void setCode(String code) {
         this.code = code;
     }
-
+    @SuppressWarnings("unused")
     public void setParentCode(String parentcode) {
         this.ParentCode = parentcode;
     }
 
-
+    @SuppressWarnings("unused")
     public void setLevel(int level) {
         this.level = level;
     }
-
+    @SuppressWarnings("unused")
     public void setCost(int cost) {
         this.cost = cost;
     }
